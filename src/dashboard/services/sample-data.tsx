@@ -1,4 +1,4 @@
-import { CopilotUsage } from "./copilot-metrics-service";
+import { CopilotUsage } from "@/types/copilotUsage";
 
 export const sampleData: CopilotUsage[] = [
   {
