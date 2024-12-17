@@ -1,7 +1,7 @@
 "use client";
 
 import { PropsWithChildren } from "react";
-import { Breakdown, CopilotUsageOutput } from "@/services/copilot-metrics-service";
+import { Breakdown, CopilotUsageOutput } from "@/types/copilotUsage";
 import { formatDate } from "@/utils/helpers";
 
 import { proxy, useSnapshot } from "valtio";
@@ -25,6 +25,7 @@ class DashboardState {
   public filteredData: CopilotUsageOutput[] = [];
   public languages: DropdownFilterItem[] = [];
   public editors: DropdownFilterItem[] = [];
+  public teams: DropdownFilterItem[] = [];
   public timeFrame: TimeFrame = "weekly";
 
   public seatManagement: SeatManagement = {} as SeatManagement;
@@ -40,7 +41,16 @@ class DashboardState {
     this.onTimeFrameChange(this.timeFrame);
     this.languages = this.extractUniqueLanguages();
     this.editors = this.extractUniqueEditors();
+    this.teams = this.extractUniqueTeams();
     this.seatManagement = seatManagement;
+  }
+
+  public filterTeam(team: string): void {
+    const item = this.teams.find((item) => item.value === team);
+    if (item) {
+      item.isSelected = !item.isSelected;
+      this.applyFilters();
+    }
   }
 
   public filterLanguage(language: string): void {
@@ -62,6 +72,7 @@ class DashboardState {
   public resetAllFilters(): void {
     this.languages.forEach((item) => (item.isSelected = false));
     this.editors.forEach((item) => (item.isSelected = false));
+    this.teams.forEach((item) => (item.isSelected = false));
     this.applyFilters();
   }
 
@@ -71,10 +82,17 @@ class DashboardState {
   }
 
   private applyFilters(): void {
-    const data = this.aggregatedDataByTimeFrame();
-
     const selectedLanguages = this.languages.filter((item) => item.isSelected);
     const selectedEditors = this.editors.filter((item) => item.isSelected);
+    const selectedTeams = this.teams.filter((item) => item.isSelected);
+
+    let data: CopilotUsageOutput[] = [];
+
+    if (selectedTeams.length !== 0) {
+      data = this.aggregatedDataByTimeFrame(selectedTeams);
+    } else {
+      data = this.aggregatedDataByTimeFrame();
+    }
 
     if (selectedLanguages.length !== 0) {
       data.forEach((item) => {
@@ -135,10 +153,34 @@ class DashboardState {
     return editors;
   }
 
-  private aggregatedDataByTimeFrame() {
-    const items = JSON.parse(
+  private extractUniqueTeams(): DropdownFilterItem[] {
+    const teams: DropdownFilterItem[] = [];
+    this.apiData.forEach((item) => {
+      const idParts = item.id.split("-");
+      const teamName = idParts.slice(5).join("-"); // Extract the team name part
+      const index = teams.findIndex((team) => team.value === teamName);
+
+      if (index === -1) {
+        teams.push({ value: teamName, isSelected: false });
+      }
+    });
+
+    return teams;
+  }
+
+  private aggregatedDataByTimeFrame(
+    selectedTeams: DropdownFilterItem[] = []
+  ): CopilotUsageOutput[] {
+    let items = JSON.parse(
       JSON.stringify(this.apiData)
     ) as Array<CopilotUsageOutput>;
+
+    if (selectedTeams.length !== 0) {
+      items = items.filter((item) => {
+        const teamName = item.id.split("-").slice(5).join("-");
+        return selectedTeams.some((team) => team.value === teamName);
+      });
+    }
 
     if (this.timeFrame === "daily") {
       items.forEach((item) => {

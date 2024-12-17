@@ -1,4 +1,4 @@
-import { CopilotUsageOutput } from "../services/copilot-metrics-service";
+import { CopilotUsageOutput } from "@/types/copilotUsage";
 
 export const groupByTimeFrame = (
   groupedByTimeFrame: Record<string, CopilotUsageOutput[]>
@@ -7,6 +7,7 @@ export const groupByTimeFrame = (
 
   Object.keys(groupedByTimeFrame).forEach((week) => {
     const aggregatedData: CopilotUsageOutput = {
+      id: "",
       total_suggestions_count: 0,
       total_acceptances_count: 0,
       total_lines_suggested: 0,

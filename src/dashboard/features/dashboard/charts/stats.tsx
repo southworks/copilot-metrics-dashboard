@@ -9,7 +9,11 @@ import {
 } from "./common";
 import StatsCard from "./stats-card";
 
-export const Stats = () => {
+interface StatsProps {
+  isTeamDashboard: boolean;
+}
+
+export const Stats = ({ isTeamDashboard }: StatsProps) => {
   const { seatManagement, filteredData } = useDashboard();
   const acceptanceAverage = computeCumulativeAcceptanceAverage(filteredData);
   const averageActiveUsers = computeActiveUserAverage(filteredData);
@@ -27,17 +31,19 @@ export const Stats = () => {
         description="Average active users"
         value={averageActiveUsers.toFixed(0) + ""}
       ></StatsCard>
-      <StatsCard
-        title="Adoption rate"
-        description="Copilot adoption rate by active users"
-        value={adoptionRate.toFixed(0) + "%"}
-      ></StatsCard>
-      <Overview />
+      {!isTeamDashboard && (
+        <StatsCard
+          title="Adoption rate"
+          description="Copilot adoption rate by active users"
+          value={adoptionRate.toFixed(0) + "%"}
+        ></StatsCard>
+      )}
+      <Overview isTeamDashboard={isTeamDashboard} />
     </div>
   );
 };
 
-export const Overview = () => {
+export const Overview = ({ isTeamDashboard }: StatsProps) => {
   const Item = ({ label, value }: { label: string; value: number }) => (
     <div className="flex-1 flex flex-row gap-2">
       <div className="text-xs flex-1 text-muted-foreground">{label}</div>
@@ -50,16 +56,18 @@ export const Overview = () => {
     seatManagement.seat_breakdown;
 
   return (
-    <Card className="col-span-1">
-      <ChartHeader
-        title={"Seat information"}
-        description={"Overview of GitHub Copilot seats"}
-      />
-      <CardContent className=" flex flex-col gap-2">
-        <Item label="Total" value={total} />
-        <Item label="Active" value={active_this_cycle} />
-        <Item label="Inactive" value={inactive_this_cycle} />
-      </CardContent>
-    </Card>
+    !isTeamDashboard && (
+      <Card className="col-span-1">
+        <ChartHeader
+          title={"Seat information"}
+          description={"Overview of GitHub Copilot seats"}
+        />
+        <CardContent className=" flex flex-col gap-2">
+          <Item label="Total" value={total} />
+          <Item label="Active" value={active_this_cycle} />
+          <Item label="Inactive" value={inactive_this_cycle} />
+        </CardContent>
+      </Card>
+    )
   );
 };

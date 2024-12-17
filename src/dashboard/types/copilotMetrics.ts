@@ -3,11 +3,6 @@ export interface CopilotMetrics {
   date: string;
   total_active_users: number;
   total_engaged_users: number;
-  total_suggestions_count: number;
-  total_acceptances_count: number;
-  total_lines_suggested: number;
-  total_lines_accepted: number;
-  total_chat_turns: number;
   copilot_ide_code_completions: CodeCompletions;
   copilot_ide_chat: IDEChat;
 }

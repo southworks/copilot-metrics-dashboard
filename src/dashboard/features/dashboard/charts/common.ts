@@ -1,5 +1,4 @@
-import { Breakdown } from "@/services/copilot-metrics-service";
-import { CopilotUsageOutput } from "@/services/copilot-metrics-service";
+import { Breakdown, CopilotUsageOutput } from "@/types/copilotUsage";
 import { PieChartData } from "./language";
 
 export interface AcceptanceRateData {

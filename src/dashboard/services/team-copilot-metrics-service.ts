@@ -12,10 +12,10 @@ export interface IFilter {
 }
 
 export const getCopilotMetrics = async (
-  filter: IFilter, teamName: string
+  filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   try {
-    return getCopilotMetricsHistoryFromDatabase(filter, teamName);
+    return getCopilotMetricsHistoryFromDatabase(filter);
   } catch (e) {
     return {
       status: "ERROR",
@@ -50,17 +50,19 @@ const adaptMetricsToUsage = (
 ): CopilotUsageOutput[] => {
   let adaptedData: CopilotUsageOutput[] = [];
   for (const item of resource) {
+    const adaptedBreakdown = editorsModelsToBreakdown(item);
     adaptedData.push({
-      total_suggestions_count: item.total_suggestions_count,
-      total_acceptances_count: item.total_acceptances_count,
-      total_lines_suggested: item.total_lines_suggested,
-      total_lines_accepted: item.total_lines_accepted,
+      id: item.id,
+      total_suggestions_count: 0,
+      total_acceptances_count: 0,
+      total_lines_suggested: 0,
+      total_lines_accepted: 0,
       total_active_users: item.total_active_users,
       total_chat_acceptances: 0,
-      total_chat_turns: item.total_chat_turns,
+      total_chat_turns: 0,
       total_active_chat_users: item.copilot_ide_chat.total_engaged_users,
       day: item.date,
-      breakdown: editorsModelsToBreakdown(item),
+      breakdown: adaptedBreakdown,
       time_frame_display: "",
       time_frame_month: "",
       time_frame_week: "",
@@ -70,7 +72,7 @@ const adaptMetricsToUsage = (
 };
 
 export const getCopilotMetricsHistoryFromDatabase = async (
-  filter: IFilter, teamName: string
+  filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   const client = cosmosClient();
   const database = client.database("platform-engineering");
@@ -95,11 +97,14 @@ export const getCopilotMetricsHistoryFromDatabase = async (
   }
 
   let querySpec: SqlQuerySpec = {
-    query: `SELECT * FROM c WHERE c.date >= @start AND c.date <= @end AND CONTAINS(c.id, @team)`,
+    query: `SELECT * FROM c WHERE c.date >= @start AND c.date <= @end AND c.id LIKE @idPattern`,
     parameters: [
       { name: "@start", value: start },
       { name: "@end", value: end },
-      { name: "@team", value: teamName },
+      {
+        name: "@idPattern",
+        value: `%org-${process.env.GITHUB_ORGANIZATION}-%`,
+      },
     ],
   };
 
