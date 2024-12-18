@@ -1,4 +1,5 @@
 export interface CopilotUsage {
+  id: string;
   total_suggestions_count: number;
   total_acceptances_count: number;
   total_lines_suggested: number;
