@@ -46,7 +46,7 @@ class DashboardState {
   }
 
   public filterTeam(team: string): void {
-    const item = this.teams.find((item) => item.value === team);
+    const item = this.teams.find((item) => item.value.toLowerCase() === team);
     if (item) {
       item.isSelected = !item.isSelected;
       this.applyFilters();
