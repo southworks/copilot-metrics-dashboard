@@ -2,6 +2,7 @@ import { CopilotUsage } from "@/types/copilotUsage";
 
 export const sampleData: CopilotUsage[] = [
   {
+    id: "1",
     total_suggestions_count: 50,
     total_acceptances_count: 40,
     total_lines_suggested: 100,
@@ -33,6 +34,7 @@ export const sampleData: CopilotUsage[] = [
     ],
   },
   {
+    id: "2",
     total_suggestions_count: 30,
     total_acceptances_count: 15,
     total_lines_suggested: 40,
