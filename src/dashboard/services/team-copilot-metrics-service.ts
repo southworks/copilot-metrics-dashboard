@@ -1,9 +1,8 @@
 import { ServerActionResponse } from "@/features/common/server-action-response";
 import { SqlQuerySpec } from "@azure/cosmos";
-import { format } from "date-fns";
+import { format, startOfWeek } from "date-fns";
 import { cosmosClient } from "./cosmos-db-service";
-import { applyTimeFrameLabel } from "./helper";
-import { CopilotUsageOutput, Breakdown } from "@/types/copilotUsage";
+import { CopilotTeamUsageOutput, Breakdown } from "@/types/copilotUsage";
 import { CopilotMetrics } from "@/types/copilotMetrics";
 
 export interface IFilter {
@@ -13,7 +12,7 @@ export interface IFilter {
 
 export const getCopilotMetrics = async (
   filter: IFilter
-): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
+): Promise<ServerActionResponse<CopilotTeamUsageOutput[]>> => {
   try {
     return getCopilotMetricsHistoryFromDatabase(filter);
   } catch (e) {
@@ -47,8 +46,8 @@ const editorsModelsToBreakdown = (item: CopilotMetrics): Breakdown[] => {
 
 const adaptMetricsToUsage = (
   resource: CopilotMetrics[]
-): CopilotUsageOutput[] => {
-  let adaptedData: CopilotUsageOutput[] = [];
+): CopilotTeamUsageOutput[] => {
+  let adaptedData: CopilotTeamUsageOutput[] = [];
   for (const item of resource) {
     const adaptedBreakdown = editorsModelsToBreakdown(item);
     adaptedData.push({
@@ -61,6 +60,7 @@ const adaptMetricsToUsage = (
       total_chat_acceptances: 0,
       total_chat_turns: 0,
       total_active_chat_users: item.copilot_ide_chat.total_engaged_users,
+      total_engaged_users: item.total_engaged_users,
       day: item.date,
       breakdown: adaptedBreakdown,
       time_frame_display: "",
@@ -71,9 +71,40 @@ const adaptMetricsToUsage = (
   return adaptedData;
 };
 
+const applyTimeFrameLabel = (
+  data: CopilotTeamUsageOutput[]
+): CopilotTeamUsageOutput[] => {
+  // Sort data by 'day'
+  const sortedData = data.sort(
+    (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
+  );
+
+  const dataWithTimeFrame: CopilotTeamUsageOutput[] = [];
+
+  sortedData.forEach((item) => {
+    // Convert 'day' to a Date object and find the start of its week
+    const date = new Date(item.day);
+    const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+
+    // Create a unique week identifier
+    const weekIdentifier = format(weekStart, "MMM dd");
+    const monthIdentifier = format(date, "MMM yy");
+
+    const output: CopilotTeamUsageOutput = {
+      ...item,
+      time_frame_week: weekIdentifier,
+      time_frame_month: monthIdentifier,
+      time_frame_display: weekIdentifier,
+    };
+    dataWithTimeFrame.push(output);
+  });
+
+  return dataWithTimeFrame;
+};
+
 export const getCopilotMetricsHistoryFromDatabase = async (
   filter: IFilter
-): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
+): Promise<ServerActionResponse<CopilotTeamUsageOutput[]>> => {
   const client = cosmosClient();
   const database = client.database("platform-engineering");
   const container = database.container("metrics_history");

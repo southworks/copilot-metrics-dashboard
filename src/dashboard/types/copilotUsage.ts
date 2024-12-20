@@ -27,3 +27,7 @@ export interface Breakdown {
   lines_accepted: number;
   active_users: number;
 }
+
+export interface CopilotTeamUsageOutput extends CopilotUsageOutput {
+  total_engaged_users: number;
+}

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Eraser } from "lucide-react";
-import { dashboardStore, useDashboard } from "../dashboard-state";
+import { dashboardStore, useDashboard } from "../team-dashboard-state";
 import { DropdownFilter } from "./dropdown-filter";
 
 export function TeamDashboardFilters() {
