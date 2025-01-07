@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using Google.Cloud.Functions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.CopilotDashboard.DataIngestion.Interfaces;
+using Google.Cloud.Firestore;
 
 [assembly: FunctionsStartup(typeof(Microsoft.CopilotDashboard.DataIngestion.Startup))]
 
@@ -15,6 +16,13 @@ namespace Microsoft.CopilotDashboard.DataIngestion
     {
         public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
+            var builder = new FirestoreDbBuilder
+            {
+                ProjectId = Environment.GetEnvironmentVariable("PROJECT_ID"),
+                DatabaseId = Environment.GetEnvironmentVariable("DATABASE_ID")
+            };
+
+            FirestoreDb firestoreDb = builder.Build();
             // Register HttpClient and configure options
             services.Configure<GithubMetricsApiOptions>(context.Configuration.GetSection("GITHUB_METRICS"));
 
@@ -24,6 +32,7 @@ namespace Microsoft.CopilotDashboard.DataIngestion
             //services.AddHttpClient<GitHubCopilotUsageClient>(ConfigureClient);
             //services.AddHttpClient<GitHubCopilotApiService>(ConfigureClient);
             services.AddScoped<IGitHubCopilotMetricsClient, GitHubCopilotMetricsClient>();
+            services.AddSingleton(firestoreDb);
         }
 
         private static void ConfigureClient(HttpClient httpClient)

@@ -1,16 +1,14 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.CopilotDashboard.DataIngestion.Models;
-using Microsoft.CopilotDashboard.DataIngestion.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using Google.Cloud.Functions.Framework;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
 using System.Text.Json;
 using Microsoft.CopilotDashboard.DataIngestion.Interfaces;
-using System.Net.Http;
+using Google.Cloud.Firestore;
 
 namespace Microsoft.CopilotDashboard.DataIngestion.Functions;
 
@@ -19,14 +17,20 @@ public class CopilotMetricsIngestion : IHttpFunction
     private readonly ILogger _logger;
     private readonly IGitHubCopilotMetricsClient _metricsClient;
     private readonly IOptions<GithubMetricsApiOptions> _options;
+    private readonly FirestoreDb _firestoreDb;
+    private readonly JsonSerializerOptions jsonSerializerOptions = new()
+    {
+        WriteIndented = true // Optional: Makes the JSON output pretty-printed
+    };
 
     public CopilotMetricsIngestion(ILogger<CopilotMetricsIngestion> logger,
     IGitHubCopilotMetricsClient metricsClient,
-    IOptions<GithubMetricsApiOptions> options)
+    IOptions<GithubMetricsApiOptions> options, FirestoreDb firestoreDb)
     {
         _metricsClient = metricsClient;
         _logger = logger;
         _options = options;
+        _firestoreDb = firestoreDb;
     }
 
     public async Task HandleAsync(HttpContext context)
@@ -59,11 +63,27 @@ public class CopilotMetricsIngestion : IHttpFunction
 
         _logger.LogInformation($"Metrics count: {metrics.Count}");
 
-        // Serialize metrics to JSON
-        var metricsJson = JsonSerializer.Serialize(metrics, new JsonSerializerOptions
+        // Store metrics in Firestore
+        var batch = _firestoreDb.StartBatch();
+        var collectionName = Environment.GetEnvironmentVariable("COPILOT_METRICS_NAME");
+        var timestamp = Timestamp.FromDateTime(DateTime.UtcNow);
+
+        foreach (var metric in metrics)
         {
-            WriteIndented = true // Optional: Makes the JSON output pretty-printed
-        });
+            var jsonSerializedMetricObject = JsonSerializer.Serialize(metric);
+            var docRef = _firestoreDb.Collection(collectionName).Document();
+            batch.Set(docRef, new Dictionary<string, object>
+            {
+                { "timestamp", timestamp },
+                { "data",  jsonSerializedMetricObject}
+            });
+        }
+        await batch.CommitAsync();
+
+        _logger.LogInformation("Successfully stored metrics in Firestore");
+
+        // Serialize metrics to JSON
+        var metricsJson = JsonSerializer.Serialize(metrics, jsonSerializerOptions);
 
         // Return JSON response
         context.Response.ContentType = "application/json";
