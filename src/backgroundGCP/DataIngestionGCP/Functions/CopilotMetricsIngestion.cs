@@ -24,8 +24,9 @@ public class CopilotMetricsIngestion : IHttpFunction
     };
 
     public CopilotMetricsIngestion(ILogger<CopilotMetricsIngestion> logger,
-    IGitHubCopilotMetricsClient metricsClient,
-    IOptions<GithubMetricsApiOptions> options, FirestoreDb firestoreDb)
+        IGitHubCopilotMetricsClient metricsClient,
+        IOptions<GithubMetricsApiOptions> options,
+        FirestoreDb firestoreDb)
     {
         _metricsClient = metricsClient;
         _logger = logger;
