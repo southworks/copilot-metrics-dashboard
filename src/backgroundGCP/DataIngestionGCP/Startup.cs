@@ -1,0 +1,42 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.CopilotDashboard.DataIngestion.Services;
+using System.Net.Http;
+using System;
+using System.Net.Http.Headers;
+using Google.Cloud.Functions.Hosting;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.CopilotDashboard.DataIngestion.Interfaces;
+
+[assembly: FunctionsStartup(typeof(Microsoft.CopilotDashboard.DataIngestion.Startup))]
+
+namespace Microsoft.CopilotDashboard.DataIngestion
+{
+    public class Startup : FunctionsStartup
+    {
+        public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
+        {
+            // Register HttpClient and configure options
+            services.Configure<GithubMetricsApiOptions>(context.Configuration.GetSection("GITHUB_METRICS"));
+
+            // Register custom services
+            services.AddHttpClient();
+            services.AddHttpClient<GitHubCopilotMetricsClient>(ConfigureClient);
+            //services.AddHttpClient<GitHubCopilotUsageClient>(ConfigureClient);
+            //services.AddHttpClient<GitHubCopilotApiService>(ConfigureClient);
+            services.AddScoped<IGitHubCopilotMetricsClient, GitHubCopilotMetricsClient>();
+        }
+
+        private static void ConfigureClient(HttpClient httpClient)
+        {
+            var apiVersion = Environment.GetEnvironmentVariable("GITHUB_API_VERSION");
+            var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+            var gitHubApiBaseUrl = "https://api.github.com/";
+
+            httpClient.BaseAddress = new Uri(gitHubApiBaseUrl);
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            httpClient.DefaultRequestHeaders.Add("X-GitHub-Api-Version", apiVersion);
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "GitHubCopilotDataIngestion");
+        }
+    }
+}
