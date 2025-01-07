@@ -3,12 +3,12 @@ import {
   unknownResponseError,
 } from "@/features/common/response-error";
 import { ServerActionResponse } from "@/features/common/server-action-response";
-import { SqlQuerySpec } from "@azure/cosmos";
 import { format } from "date-fns";
-import { cosmosClient, cosmosConfiguration } from "./cosmos-db-service";
+import { firestoreClient, firestoreConfiguration } from "./firestore-service";
 import { ensureGitHubEnvConfig } from "./env-service";
 import { applyTimeFrameLabel } from "./helper";
 import { sampleData } from "./sample-data";
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export interface CopilotUsage {
   total_suggestions_count: number;
@@ -48,7 +48,7 @@ export const getCopilotMetrics = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   try {
-    const isCosmosConfig = cosmosConfiguration();
+    const isCosmosConfig = firestoreConfiguration();
     switch(process.env.GITHUB_API_SCOPE) {
       // If we have the required environment variables, we can use the enterprise API endpoint
       case "enterprise":
@@ -157,9 +157,8 @@ export const getCopilotMetricsForEnterpriseFromApi = async (): Promise<
 export const getCopilotMetricsForOrgsFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
-  const client = cosmosClient();
-  const database = client.database("platform-engineering");
-  const container = database.container("history");
+  const db = firestoreClient();
+  const historyCollection = collection(db, "history");
 
   let start = "";
   let end = "";
@@ -179,19 +178,17 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
-  let querySpec: SqlQuerySpec = {
-    query: `SELECT * FROM c WHERE c.day >= @start AND c.day <= @end`,
-    parameters: [
-      { name: "@start", value: start },
-      { name: "@end", value: end },
-    ],
-  };
+  const q = query(
+    historyCollection,
+    where("day", ">=", start),
+    where("day", "<=", end)
+  );
 
-  const { resources } = await container.items
-    .query<CopilotUsageOutput>(querySpec, {
-      maxItemCount: maxDays,
-    })
-    .fetchAll();
+  const querySnapshot = await getDocs(q);
+  const resources: CopilotUsageOutput[] = [];
+  querySnapshot.forEach((doc) => {
+    resources.push(doc.data() as CopilotUsageOutput);
+  });
 
   const dataWithTimeFrame = applyTimeFrameLabel(resources);
   return {
@@ -203,9 +200,8 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
 export const getCopilotMetricsForEnterpriseFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
-  const client = cosmosClient();
-  const database = client.database("platform-engineering");
-  const container = database.container("history");
+  const db = firestoreClient();
+  const historyCollection = collection(db, "history");
 
   let start = "";
   let end = "";
@@ -224,19 +220,17 @@ export const getCopilotMetricsForEnterpriseFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
-  let querySpec: SqlQuerySpec = {
-    query: `SELECT * FROM c WHERE c.day >= @start AND c.day <= @end`,
-    parameters: [
-      { name: "@start", value: start },
-      { name: "@end", value: end },
-    ],
-  };
+  const q = query(
+    historyCollection,
+    where("day", ">=", start),
+    where("day", "<=", end)
+  );
 
-  const { resources } = await container.items
-    .query<CopilotUsageOutput>(querySpec, {
-      maxItemCount: maxDays,
-    })
-    .fetchAll();
+  const querySnapshot = await getDocs(q);
+  const resources: CopilotUsageOutput[] = [];
+  querySnapshot.forEach((doc) => {
+    resources.push(doc.data() as CopilotUsageOutput);
+  });
 
   const dataWithTimeFrame = applyTimeFrameLabel(resources);
   return {

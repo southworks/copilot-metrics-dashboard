@@ -8,10 +8,11 @@ import {
   CopilotSeatsData,
   CopilotSeatManagementData,
 } from "@/features/common/models";
-import { cosmosClient } from "./cosmos-db-service";
+import { firestoreClient } from "./firestore-service";
 import { format } from "date-fns";
 import { SqlQuerySpec } from "@azure/cosmos";
 import { stringIsNullOrEmpty } from "../utils/helpers";
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export interface IFilter {
   date?: Date;
@@ -53,9 +54,8 @@ export const getCopilotSeats = async (
 const getCopilotSeatsFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotSeatsData>> => {
-  const client = cosmosClient();
-  const database = client.database("platform-engineering");
-  const container = database.container("seats_history");
+  const db = firestoreClient();
+  const seatsHistoryCollection = collection(db, "seats_history");
 
   let date = "";
   const maxDays = 365 * 2; // maximum 2 years of data
@@ -67,34 +67,24 @@ const getCopilotSeatsFromDatabase = async (
     date = format(today, "yyyy-MM-dd");
   }
 
-  let querySpec: SqlQuerySpec = {
-    query: `SELECT * FROM c WHERE c.date = @date`,
-    parameters: [{ name: "@date", value: date }],
-  };
+  let constraints = [where("date", "==", date)];
   if (filter.enterprise) {
-    querySpec.query += ` AND c.enterprise = @enterprise`;
-    querySpec.parameters?.push({
-      name: "@enterprise",
-      value: filter.enterprise,
-    });
+    constraints.push(where("enterprise", "==", filter.enterprise));
   }
   if (filter.organization) {
-    querySpec.query += ` AND c.organization = @organization`;
-    querySpec.parameters?.push({
-      name: "@organization",
-      value: filter.organization,
-    });
+    constraints.push(where("organization", "==", filter.organization));
   }
   if (filter.team) {
-    querySpec.query += ` AND c.team = @team`;
-    querySpec.parameters?.push({ name: "@team", value: filter.team });
+    constraints.push(where("team", "==", filter.team));
   }
 
-  const { resources } = await container.items
-    .query<CopilotSeatsData>(querySpec, {
-      maxItemCount: maxDays,
-    })
-    .fetchAll();
+  const q = query(seatsHistoryCollection, ...constraints);
+
+  const querySnapshot = await getDocs(q);
+  const resources: CopilotSeatsData[] = [];
+  querySnapshot.forEach((doc) => {
+    resources.push(doc.data() as CopilotSeatsData);
+  });
 
   return {
     status: "OK",
