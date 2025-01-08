@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
+using Google.Cloud.Functions.Framework;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CopilotDashboard.DataIngestion.Models;
 using Microsoft.CopilotDashboard.DataIngestion.Services;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.CopilotDashboard.DataIngestion.Functions;
 
-public class CopilotSeatsIngestion
+public class CopilotSeatsIngestion : IHttpFunction
 {
     private readonly ILogger _logger;
     private readonly GitHubCopilotApiService _gitHubCopilotApiService;
