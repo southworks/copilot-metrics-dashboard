@@ -34,3 +34,10 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Configuring settings when running the frontend in a container
+
+For configuring the frontend settings there are two alternatives:
+
+1. Create an .env file and include it in the Docker image. This means that the .env file must be created before the image is built.
+1. Add the settings as environment variables of the Container App or Google container.
