@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 8080
 
 # Start the Next.js application
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]
