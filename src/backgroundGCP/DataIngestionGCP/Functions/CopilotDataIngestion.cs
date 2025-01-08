@@ -55,7 +55,7 @@ public class CopilotDataIngestion
         foreach (var usage in usageHistory)
         {
             var jsonSerializedUsageObject = JsonSerializer.Serialize(usage);
-            var docRef = _firestoreDb.Collection(collectionName).Document();
+            var docRef = _firestoreDb.Collection(collectionName).Document(usage.Id);
             batch.Set(docRef, new Dictionary<string, object>
             {
                 { "timestamp", timestamp },

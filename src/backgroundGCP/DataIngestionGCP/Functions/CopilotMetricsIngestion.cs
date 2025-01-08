@@ -66,13 +66,13 @@ public class CopilotMetricsIngestion : IHttpFunction
 
         // Store metrics in Firestore
         var batch = _firestoreDb.StartBatch();
-        var collectionName = Environment.GetEnvironmentVariable("COPILOT_METRICS_NAME");
+        var collectionName = Environment.GetEnvironmentVariable("METRICS_HISTORY_FIRESTORE_COLLECTION_NAME");
         var timestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
         foreach (var metric in metrics)
         {
             var jsonSerializedMetricObject = JsonSerializer.Serialize(metric);
-            var docRef = _firestoreDb.Collection(collectionName).Document();
+            var docRef = _firestoreDb.Collection(collectionName).Document(metric.Id);
             batch.Set(docRef, new Dictionary<string, object>
             {
                 { "timestamp", timestamp },

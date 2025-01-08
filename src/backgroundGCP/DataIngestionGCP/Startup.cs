@@ -29,8 +29,8 @@ namespace Microsoft.CopilotDashboard.DataIngestion
             // Register custom services
             services.AddHttpClient();
             services.AddHttpClient<GitHubCopilotMetricsClient>(ConfigureClient);
-            //services.AddHttpClient<GitHubCopilotUsageClient>(ConfigureClient);
-            //services.AddHttpClient<GitHubCopilotApiService>(ConfigureClient);
+            services.AddHttpClient<GitHubCopilotUsageClient>(ConfigureClient);
+            services.AddHttpClient<GitHubCopilotApiService>(ConfigureClient);
             services.AddScoped<IGitHubCopilotMetricsClient, GitHubCopilotMetricsClient>();
             services.AddSingleton(firestoreDb);
         }

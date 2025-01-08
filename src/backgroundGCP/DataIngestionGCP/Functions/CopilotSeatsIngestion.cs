@@ -63,7 +63,7 @@ public class CopilotSeatsIngestion
         var timestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
         var jsonSerializedSeatsObject = JsonSerializer.Serialize(seats);
-        var docRef = _firestoreDb.Collection(collectionName).Document();
+        var docRef = _firestoreDb.Collection(collectionName).Document(seats.Id);
         batch.Set(docRef, new Dictionary<string, object>
         {
             { "timestamp", timestamp },
