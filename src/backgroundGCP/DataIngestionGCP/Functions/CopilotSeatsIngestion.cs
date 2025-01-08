@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.CopilotDashboard.DataIngestion.Models;
 using Microsoft.CopilotDashboard.DataIngestion.Services;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Microsoft.CopilotDashboard.DataIngestion.Functions;
 
@@ -61,22 +63,36 @@ public class CopilotSeatsIngestion : IHttpFunction
         // Store seats data in Firestore
         var batch = _firestoreDb.StartBatch();
         var collectionName = Environment.GetEnvironmentVariable("SEATS_HISTORY_FIRESTORE_COLLECTION_NAME");
+        Console.WriteLine(collectionName);
         var timestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
-        var jsonSerializedSeatsObject = JsonSerializer.Serialize(seats);
         var docRef = _firestoreDb.Collection(collectionName).Document(seats.Id);
-        batch.Set(docRef, new Dictionary<string, object>
-        {
-            { "timestamp", timestamp },
-            { "data",  jsonSerializedSeatsObject}
-        });
+        //batch.Set(docRef, new Dictionary<string, object>
+        //{
+        //    { "timestamp", timestamp },
+        //    { "data", ObjectToDictionaryConverter.ToDictionary(seats) }
+        //});
 
-        await batch.CommitAsync();
+        var serializedParticipant = JsonConvert.SerializeObject(seats);
+        var deserializedParticipant = JsonConvert.DeserializeObject<ExpandoObject>(serializedParticipant);
+
+        await docRef.UpdateAsync(deserializedParticipant);
+
+        //foreach (var docId in data.Keys)
+        //{
+        //    DocumentReference docRef = db.Collection(collectionName).Document(docId);
+        //    batch.Set(docRef, data[docId]);
+        //}
+
+        //batch.Set(docRef,
+        //     ObjectToDictionaryConverter.ToDictionary(seats));
+
+        //await batch.CommitAsync();
 
         _logger.LogInformation("Successfully stored seats in Firestore");
 
         // Serialize metrics to JSON
-        var seatsJson = JsonSerializer.Serialize(seats, jsonSerializerOptions);
+        var seatsJson = System.Text.Json.JsonSerializer.Serialize(seats, jsonSerializerOptions);
 
         // Return JSON response
         httpContext.Response.ContentType = "application/json";
