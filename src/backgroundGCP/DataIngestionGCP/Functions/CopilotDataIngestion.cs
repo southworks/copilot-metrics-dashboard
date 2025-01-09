@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Google.Api;
 using Google.Cloud.Firestore;
 using Google.Cloud.Functions.Framework;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CopilotDashboard.DataIngestion.Models;
 using Microsoft.CopilotDashboard.DataIngestion.Services;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Microsoft.CopilotDashboard.DataIngestion.Functions;
 
@@ -55,20 +58,17 @@ public class CopilotDataIngestion: IHttpFunction
 
         foreach (var usage in usageHistory)
         {
-            var jsonSerializedUsageObject = JsonSerializer.Serialize(usage);
             var docRef = _firestoreDb.Collection(collectionName).Document(usage.Id);
-            batch.Set(docRef, new Dictionary<string, object>
-            {
-                { "timestamp", timestamp },
-                { "data",  jsonSerializedUsageObject}
-            });
+            var serializedUsage = JsonConvert.SerializeObject(usage);
+            var deserializedUsage = JsonConvert.DeserializeObject<ExpandoObject>(serializedUsage);
+            batch.Set(docRef, deserializedUsage);
         }
         await batch.CommitAsync();
 
         _logger.LogInformation("Successfully stored usage in Firestore");
 
         // Serialize metrics to JSON
-        var metricsJson = JsonSerializer.Serialize(usageHistory, jsonSerializerOptions);
+        var metricsJson = System.Text.Json.JsonSerializer.Serialize(usageHistory, jsonSerializerOptions);
 
         // Return JSON response
         httpContext.Response.ContentType = "application/json";
