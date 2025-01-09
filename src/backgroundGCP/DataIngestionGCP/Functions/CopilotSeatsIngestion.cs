@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using Google.Cloud.Functions.Framework;
@@ -18,10 +16,6 @@ public class CopilotSeatsIngestion : IHttpFunction
     private readonly ILogger _logger;
     private readonly GitHubCopilotApiService _gitHubCopilotApiService;
     private readonly FirestoreDb _firestoreDb;
-    private readonly JsonSerializerOptions jsonSerializerOptions = new()
-    {
-        WriteIndented = true // Optional: Makes the JSON output pretty-printed
-    };
 
     public CopilotSeatsIngestion(
         GitHubCopilotApiService gitHubCopilotApiService,
