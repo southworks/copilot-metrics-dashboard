@@ -53,3 +53,10 @@ const firebaseConfig = {
 };
 ```
 6. Add the values to the .env file.
+
+## Configuring settings when running the frontend in a container
+
+For configuring the frontend settings there are two alternatives:
+
+1. Create an .env file and include it in the Docker image. This means that the .env file must be created before the image is built.
+1. Add the settings as environment variables of the Container App or Google container.
