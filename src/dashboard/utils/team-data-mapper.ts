@@ -1,12 +1,12 @@
-import { CopilotUsageOutput } from "@/types/copilotUsage";
+import { CopilotTeamUsageOutput } from "@/types/copilotUsage";
 
 export const groupByTimeFrame = (
-  groupedByTimeFrame: Record<string, CopilotUsageOutput[]>
+  groupedByTimeFrame: Record<string, CopilotTeamUsageOutput[]>
 ) => {
-  const updatedResponse: CopilotUsageOutput[] = [];
+  const updatedResponse: CopilotTeamUsageOutput[] = [];
 
   Object.keys(groupedByTimeFrame).forEach((week) => {
-    const aggregatedData: CopilotUsageOutput = {
+    const aggregatedData: CopilotTeamUsageOutput = {
       id: "",
       total_suggestions_count: 0,
       total_acceptances_count: 0,
@@ -16,6 +16,7 @@ export const groupByTimeFrame = (
       total_chat_acceptances: 0,
       total_chat_turns: 0,
       total_active_chat_users: 0,
+      total_engaged_users: 0,
       day: "", // Decide how to handle this
       breakdown: [], // Decide how to handle this
       time_frame_month: "",
@@ -34,6 +35,7 @@ export const groupByTimeFrame = (
       aggregatedData.total_chat_acceptances += item.total_chat_acceptances;
       aggregatedData.total_chat_turns += item.total_chat_turns;
       aggregatedData.total_active_chat_users += item.total_active_chat_users;
+      aggregatedData.total_engaged_users += item.total_engaged_users;
 
       item.breakdown.forEach((breakdownItem) => {
         const existingIndex = aggregatedData.breakdown.findIndex(
@@ -64,6 +66,10 @@ export const groupByTimeFrame = (
     aggregatedData.total_active_users = average(
       aggregatedData.total_active_users
     );
+
+    aggregatedData.total_engaged_users = average(
+        aggregatedData.total_engaged_users
+      );
 
     aggregatedData.total_active_chat_users = average(
       aggregatedData.total_active_chat_users

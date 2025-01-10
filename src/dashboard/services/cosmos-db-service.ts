@@ -1,4 +1,3 @@
-import { ServerActionResponse } from "@/features/common/server-action-response";
 import { CosmosClient } from "@azure/cosmos";
 import { DefaultAzureCredential } from "@azure/identity";
 import { stringIsNullOrEmpty } from "../utils/helpers";
