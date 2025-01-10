@@ -1,9 +1,9 @@
 import { ServerActionResponse } from "@/features/common/server-action-response";
-import { SqlQuerySpec } from "@azure/cosmos";
 import { format, startOfWeek } from "date-fns";
-import { cosmosClient } from "./cosmos-db-service";
+import { firestoreClient } from "./firestore-service";
 import { CopilotTeamUsageOutput, Breakdown } from "@/types/copilotUsage";
 import { CopilotMetrics } from "@/types/copilotMetrics";
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export interface IFilter {
   startDate?: Date;
@@ -105,9 +105,8 @@ const applyTimeFrameLabel = (
 export const getCopilotMetricsHistoryFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotTeamUsageOutput[]>> => {
-  const client = cosmosClient();
-  const database = client.database("platform-engineering");
-  const container = database.container("metrics_history");
+  const db = firestoreClient();
+  const metricsHistoryCollection = collection(db, "metrics_history");
 
   let start = "";
   let end = "";
@@ -127,23 +126,29 @@ export const getCopilotMetricsHistoryFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
-  let querySpec: SqlQuerySpec = {
-    query: `SELECT * FROM c WHERE c.date >= @start AND c.date <= @end AND c.id LIKE @idPattern`,
-    parameters: [
-      { name: "@start", value: start },
-      { name: "@end", value: end },
-      {
-        name: "@idPattern",
-        value: `%org-${process.env.GITHUB_ORGANIZATION}-%`,
-      },
-    ],
-  };
+  // let querySpec: SqlQuerySpec = {
+  //   query: `SELECT * FROM c WHERE c.date >= @start AND c.date <= @end AND c.id LIKE @idPattern`,
+  //   parameters: [
+  //     { name: "@start", value: start },
+  //     { name: "@end", value: end },
+  //     {
+  //       name: "@idPattern",
+  //       value: `%org-${process.env.GITHUB_ORGANIZATION}-%`,
+  //     },
+  //   ],
+  // };
 
-  const { resources } = await container.items
-    .query<CopilotMetrics>(querySpec, {
-      maxItemCount: maxDays,
-    })
-    .fetchAll();
+  const q = query(
+    metricsHistoryCollection,
+    where("day", ">=", start),
+    where("day", "<=", end)
+  );
+
+const querySnapshot = await getDocs(q);
+  const resources: CopilotMetrics[] = [];
+  querySnapshot.forEach((doc) => {
+    resources.push(doc.data() as CopilotMetrics);
+  });
 
   const adaptedMetrics = adaptMetricsToUsage(resources);
 
