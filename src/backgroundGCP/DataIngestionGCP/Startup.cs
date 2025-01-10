@@ -7,6 +7,8 @@ using Google.Cloud.Functions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.CopilotDashboard.DataIngestion.Interfaces;
 using Google.Cloud.Firestore;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 [assembly: FunctionsStartup(typeof(Microsoft.CopilotDashboard.DataIngestion.Startup))]
 
@@ -16,6 +18,10 @@ namespace Microsoft.CopilotDashboard.DataIngestion
     {
         public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
+            Console.WriteLine("Configuring services");
+
+            LoadEnvironmentVariables();
+
             var builder = new FirestoreDbBuilder
             {
                 ProjectId = Environment.GetEnvironmentVariable("PROJECT_ID"),
@@ -29,8 +35,8 @@ namespace Microsoft.CopilotDashboard.DataIngestion
             // Register custom services
             services.AddHttpClient();
             services.AddHttpClient<GitHubCopilotMetricsClient>(ConfigureClient);
-            //services.AddHttpClient<GitHubCopilotUsageClient>(ConfigureClient);
-            //services.AddHttpClient<GitHubCopilotApiService>(ConfigureClient);
+            services.AddHttpClient<GitHubCopilotUsageClient>(ConfigureClient);
+            services.AddHttpClient<GitHubCopilotApiService>(ConfigureClient);
             services.AddScoped<IGitHubCopilotMetricsClient, GitHubCopilotMetricsClient>();
             services.AddSingleton(firestoreDb);
         }
@@ -46,6 +52,20 @@ namespace Microsoft.CopilotDashboard.DataIngestion
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             httpClient.DefaultRequestHeaders.Add("X-GitHub-Api-Version", apiVersion);
             httpClient.DefaultRequestHeaders.Add("User-Agent", "GitHubCopilotDataIngestion");
+        }
+
+        private void LoadEnvironmentVariables()
+        {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            var envVariables = config.GetSection("Values").GetChildren();
+            foreach (var envVariable in envVariables)
+            {
+                Environment.SetEnvironmentVariable(envVariable.Key, envVariable.Value);
+            }
         }
     }
 }

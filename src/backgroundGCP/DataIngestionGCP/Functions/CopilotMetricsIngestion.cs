@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using Microsoft.CopilotDashboard.DataIngestion.Interfaces;
 using Google.Cloud.Firestore;
+using Newtonsoft.Json;
+using System.Dynamic;
 
 namespace Microsoft.CopilotDashboard.DataIngestion.Functions;
 
@@ -24,8 +26,9 @@ public class CopilotMetricsIngestion : IHttpFunction
     };
 
     public CopilotMetricsIngestion(ILogger<CopilotMetricsIngestion> logger,
-    IGitHubCopilotMetricsClient metricsClient,
-    IOptions<GithubMetricsApiOptions> options, FirestoreDb firestoreDb)
+        IGitHubCopilotMetricsClient metricsClient,
+        IOptions<GithubMetricsApiOptions> options,
+        FirestoreDb firestoreDb)
     {
         _metricsClient = metricsClient;
         _logger = logger;
@@ -65,25 +68,21 @@ public class CopilotMetricsIngestion : IHttpFunction
 
         // Store metrics in Firestore
         var batch = _firestoreDb.StartBatch();
-        var collectionName = Environment.GetEnvironmentVariable("COPILOT_METRICS_NAME");
-        var timestamp = Timestamp.FromDateTime(DateTime.UtcNow);
+        var collectionName = Environment.GetEnvironmentVariable("METRICS_HISTORY_FIRESTORE_COLLECTION_NAME");
 
         foreach (var metric in metrics)
         {
-            var jsonSerializedMetricObject = JsonSerializer.Serialize(metric);
-            var docRef = _firestoreDb.Collection(collectionName).Document();
-            batch.Set(docRef, new Dictionary<string, object>
-            {
-                { "timestamp", timestamp },
-                { "data",  jsonSerializedMetricObject}
-            });
+            var docRef = _firestoreDb.Collection(collectionName).Document(metric.Id);
+            var serializedMetrics = JsonConvert.SerializeObject(metric);
+            var deserializedMetric = JsonConvert.DeserializeObject<ExpandoObject>(serializedMetrics);
+            batch.Set(docRef, deserializedMetric);
         }
         await batch.CommitAsync();
 
         _logger.LogInformation("Successfully stored metrics in Firestore");
 
         // Serialize metrics to JSON
-        var metricsJson = JsonSerializer.Serialize(metrics, jsonSerializerOptions);
+        var metricsJson = System.Text.Json.JsonSerializer.Serialize(metrics, jsonSerializerOptions);
 
         // Return JSON response
         context.Response.ContentType = "application/json";
