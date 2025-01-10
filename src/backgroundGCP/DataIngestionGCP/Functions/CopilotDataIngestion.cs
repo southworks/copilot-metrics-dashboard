@@ -59,7 +59,7 @@ public class CopilotDataIngestion: IHttpFunction
         foreach (var usage in usageHistory)
         {
             var docRef = _firestoreDb.Collection(collectionName).Document(usage.Id);
-            var serializedUsage = JsonConvert.SerializeObject(usage);
+            var serializedUsage = System.Text.Json.JsonSerializer.Serialize(usage);
             var deserializedUsage = JsonConvert.DeserializeObject<ExpandoObject>(serializedUsage);
             batch.Set(docRef, deserializedUsage);
         }

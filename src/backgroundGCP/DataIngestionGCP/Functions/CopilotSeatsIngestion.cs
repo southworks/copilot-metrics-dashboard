@@ -54,8 +54,9 @@ public class CopilotSeatsIngestion : IHttpFunction
             seats = await _gitHubCopilotApiService.GetOrganizationAssignedSeatsAsync(organization, token);
         }
 
-        // Ensure all DateTime properties are in UTC
+        // Ensure all DateTime properties are in UTC for Firestore ingest
         seats.LastUpdate = seats.LastUpdate.ToUniversalTime();
+        seats.FullDate = seats.Date.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
 
         foreach (var seat in seats.Seats)
         {
@@ -71,7 +72,7 @@ public class CopilotSeatsIngestion : IHttpFunction
         var collectionName = Environment.GetEnvironmentVariable("SEATS_HISTORY_FIRESTORE_COLLECTION_NAME");
 
         var docRef = _firestoreDb.Collection(collectionName).Document(seats.Id);
-        var serializedSeats = JsonConvert.SerializeObject(seats);
+        var serializedSeats = System.Text.Json.JsonSerializer.Serialize(seats);
         var deserializedSeats = JsonConvert.DeserializeObject<ExpandoObject>(serializedSeats);
 
         await docRef.SetAsync(deserializedSeats);

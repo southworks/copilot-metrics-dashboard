@@ -73,7 +73,7 @@ public class CopilotMetricsIngestion : IHttpFunction
         foreach (var metric in metrics)
         {
             var docRef = _firestoreDb.Collection(collectionName).Document(metric.Id);
-            var serializedMetrics = JsonConvert.SerializeObject(metric);
+            var serializedMetrics = System.Text.Json.JsonSerializer.Serialize(metric);
             var deserializedMetric = JsonConvert.DeserializeObject<ExpandoObject>(serializedMetrics);
             batch.Set(docRef, deserializedMetric);
         }
