@@ -3,7 +3,7 @@ import { format, startOfWeek } from "date-fns";
 import { firestoreClient } from "./firestore-service";
 import { CopilotTeamUsageOutput, Breakdown } from "@/types/copilotUsage";
 import { CopilotMetrics } from "@/types/copilotMetrics";
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export interface IFilter {
   startDate?: Date;
@@ -132,9 +132,9 @@ export const getCopilotMetricsHistoryFromDatabase = async (
     where("day", "<=", end),
     where("id", ">=", `org-${process.env.GITHUB_ORGANIZATION}-`),
     where("id", "<=", `org-${process.env.GITHUB_ORGANIZATION}-\uf8ff`)
-);
+  );
 
-const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(q);
   const resources: CopilotMetrics[] = [];
   querySnapshot.forEach((doc) => {
     resources.push(doc.data() as CopilotMetrics);
