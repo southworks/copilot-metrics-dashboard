@@ -126,23 +126,13 @@ export const getCopilotMetricsHistoryFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
-  // let querySpec: SqlQuerySpec = {
-  //   query: `SELECT * FROM c WHERE c.date >= @start AND c.date <= @end AND c.id LIKE @idPattern`,
-  //   parameters: [
-  //     { name: "@start", value: start },
-  //     { name: "@end", value: end },
-  //     {
-  //       name: "@idPattern",
-  //       value: `%org-${process.env.GITHUB_ORGANIZATION}-%`,
-  //     },
-  //   ],
-  // };
-
   const q = query(
     metricsHistoryCollection,
     where("day", ">=", start),
-    where("day", "<=", end)
-  );
+    where("day", "<=", end),
+    where("id", ">=", `org-${process.env.GITHUB_ORGANIZATION}-`),
+    where("id", "<=", `org-${process.env.GITHUB_ORGANIZATION}-\uf8ff`)
+);
 
 const querySnapshot = await getDocs(q);
   const resources: CopilotMetrics[] = [];
