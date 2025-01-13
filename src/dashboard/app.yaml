@@ -7,6 +7,7 @@ automatic_scaling:
     target_utilization: 0.85   # Correct format for flex environment
   min_num_instances: 1
   max_num_instances: 10
+  max_idle_instances: 1
   cool_down_period_sec: 180
 
 resources:
