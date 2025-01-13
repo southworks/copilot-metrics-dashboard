@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using Google.Cloud.Functions.Framework;
@@ -18,10 +16,6 @@ public class CopilotSeatsIngestion : IHttpFunction
     private readonly ILogger _logger;
     private readonly GitHubCopilotApiService _gitHubCopilotApiService;
     private readonly FirestoreDb _firestoreDb;
-    private readonly JsonSerializerOptions jsonSerializerOptions = new()
-    {
-        WriteIndented = true // Optional: Makes the JSON output pretty-printed
-    };
 
     public CopilotSeatsIngestion(
         GitHubCopilotApiService gitHubCopilotApiService,
@@ -60,8 +54,9 @@ public class CopilotSeatsIngestion : IHttpFunction
             seats = await _gitHubCopilotApiService.GetOrganizationAssignedSeatsAsync(organization, token);
         }
 
-        // Ensure all DateTime properties are in UTC
+        // Ensure all DateTime properties are in UTC for Firestore ingest
         seats.LastUpdate = seats.LastUpdate.ToUniversalTime();
+        seats.FullDate = seats.Date.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
 
         foreach (var seat in seats.Seats)
         {
@@ -77,7 +72,7 @@ public class CopilotSeatsIngestion : IHttpFunction
         var collectionName = Environment.GetEnvironmentVariable("SEATS_HISTORY_FIRESTORE_COLLECTION_NAME");
 
         var docRef = _firestoreDb.Collection(collectionName).Document(seats.Id);
-        var serializedSeats = JsonConvert.SerializeObject(seats);
+        var serializedSeats = System.Text.Json.JsonSerializer.Serialize(seats);
         var deserializedSeats = JsonConvert.DeserializeObject<ExpandoObject>(serializedSeats);
 
         await docRef.SetAsync(deserializedSeats);

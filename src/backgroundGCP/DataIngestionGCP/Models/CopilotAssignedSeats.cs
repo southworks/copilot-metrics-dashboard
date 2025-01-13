@@ -29,6 +29,13 @@ public class CopilotAssignedSeats
     public DateOnly Date { get; set; }
 
     /// <summary>
+    /// Gets or sets the full date for which the seats information is recorded. Used to filter the data.
+    /// </summary>
+    [JsonPropertyName("full_date")]
+    [FirestoreProperty("full_date")]
+    public DateTime FullDate { get; set; }
+
+    /// <summary>
     /// Gets or sets the total number of seats.
     /// </summary>
     [JsonPropertyName("total_seats")]
