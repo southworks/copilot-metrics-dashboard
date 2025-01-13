@@ -31,7 +31,7 @@ public class GetCopilotSeatsByDate : IHttpFunction
     {
         try
         {
-            string apiKey = context.Request.Query["apiKey"];
+            string apiKey = context.Request.Headers["apiKey"].FirstOrDefault() ?? context.Request.Query["apiKey"];
             if (string.IsNullOrEmpty(apiKey))
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -65,10 +65,10 @@ public class GetCopilotSeatsByDate : IHttpFunction
 
             if (!string.IsNullOrEmpty(toDateStr))
             {
-                if (!DateTime.TryParse(toDateStr, out DateTime parsedToDate))
+                if (!DateTime.TryParseExact(toDateStr, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None, out DateTime parsedToDate))
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsync("Invalid 'to' date.");
+                    await context.Response.WriteAsync("Invalid 'to' date. Expected format: 'YYYY-MM-ddTHH:mm:ss'.");
                     return;
                 }
                 toDate = parsedToDate;
