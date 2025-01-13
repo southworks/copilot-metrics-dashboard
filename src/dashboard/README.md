@@ -88,10 +88,10 @@ env_variables:
 ## How to obtain Firestore credentials
 
 1. Go to the Firebase Console: Open your web browser and navigate to [Firebase Console](https://console.firebase.google.com/).
-1. Create a New Project: If you don't have a project yet, click on "Add project" and follow the prompts to create a new Firebase project.
-1. Navigate to Project Settings: Once your project is created, click on the gear icon next to "Project Overview" in the left sidebar and select "Project settings".
-1. Get the API Key: In the "General" tab, scroll down to the "Your apps" section. If you haven't added an app yet, click on the "Add app" button and follow the prompts to register your app (e.g., Web, iOS, Android). After registering your app, you will see the Firebase SDK configuration, which includes the API key.
-1. Copy the API Key: The API key will be listed in the configuration snippet. It looks something like this:
+2. Create a New Project: If you don't have a project yet, click on "Add project" and follow the prompts to create a new Firebase project.
+3. Navigate to Project Settings: Once your project is created, click on the gear icon next to "Project Overview" in the left sidebar and select "Project settings".
+4. Get the API Key: In the "General" tab, scroll down to the "Your apps" section. If you haven't added an app yet, click on the "Add app" button and follow the prompts to register your app (e.g., Web, iOS, Android). After registering your app, you will see the Firebase SDK configuration, which includes the API key.
+5. Copy the API Key: The API key will be listed in the configuration snippet. It looks something like this:
 ```json
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
