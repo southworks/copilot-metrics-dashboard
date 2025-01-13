@@ -39,7 +39,7 @@ export default async function Dashboard(props: IProps) {
 
         <div className="mx-auto w-full max-w-6xl container">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Stats isTeamDashboard={false}/>
+            <Stats />
             <div className="flex justify-end col-span-4">
               <TimeFrameToggle />
             </div>
