@@ -83,7 +83,7 @@ env_variables:
     * Deploy the app: Run the following command in the root directory of your project: "gcloud app deploy" This command will deploy your application to App Engine using the configuration specified in app.yaml and your Dockerfile.
 
 5. Enable IAP for authentication
-    * In the Google Cloud Console (web portal) it's necessary to enable the Identity-Aware Proxy for the project and then enable it for the App Engine, with this we can control what users are able to pass the auth process with no need for code changes.
+    * In the Google Cloud Console (web portal) it's necessary to enable the Identity-Aware Proxy for the project and then enable it for the App Engine, the first time IAP is going to ask to configure the OAuth consent page, with this done we can control what users are able to pass the auth process with no need for code changes, to authorize an user you should add a principal to the App Engine from the IAP console page, the principal is the user mail and the necessary role is "IAP-secured Web App User".
 
 ## How to obtain Firestore credentials
 
