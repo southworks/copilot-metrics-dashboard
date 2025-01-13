@@ -76,6 +76,53 @@ azd up
 azd up --debug
 ```
 
+# Deploy to Google Cloud Platform
+
+The deployment in GCP requires Firestore database, Cloud Run Functions and App Engine services.
+
+## Configuring Firestore
+
+1. While in the Google Cloud console, search for Firestore service.
+1. Go to create database.
+1. Create the database and copy the id since it will be used for configuring other services.
+
+## Configuring Cloud Run Functions
+
+Before following the steps, clone this repository.
+This process has to be done one time per function. Currently there are four C# functions:
+- Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotDataIngestion
+- Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotMetricsIngestion
+- Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotSeatsIngestion
+- Microsoft.CopilotDashboard.DataIngestion.Functions.GetCopilotSeatsByDate
+
+1. While in the Google Cloud console, search for Cloud Run Functions.
+1. Go to create function.
+1. Add a name for the function and make sur the trigger type is HTTPS.
+1. In the Code tab under entry point, set the name of the function that is being deployed. It can be copied from the list above.
+1. Under runtime variables, add the following:
+    - GITHUB_API_SCOPE: organization
+    - HISTORY_FIRESTORE_COLLECTION_NAME:history
+    - USE_METRICS_API: true
+    - METRICS_HISTORY_FIRESTORE_COLLECTION_NAME: metrics_history
+    - GITHUB_TOKEN: {github_token}
+    - ENABLE_SEATS_INGESTION: true
+    - GITHUB_ENTERPRISE: {enterprise_name}
+    - GITHUB_ORGANIZATION: {organization_name}
+    - SEATS_HISTORY_FIRESTORE_COLLECTION_NAME: seats_history
+    - PROJECT_ID: {google_project_id} 
+    - DATABASE_ID: {firestore_database_id}
+    - GITHUB_API_VERSION: 2022-11-28
+    - FUNCTION_TARGET: Microsoft.CopilotDashboard.DataIngestion.Functions.{function_name}
+    - API_KEY: {api_key}
+1. Click next to go to the Code section.
+1. Under Runtime selection .NET 8.
+1. Under Entry Point add the name of the function to deploy. It can be copied from the list above.
+1. Under Source code select ZIP upload.
+1. In you local environment, create a zip file with the code of the project DataIngestionGCP
+1. In Destination bucket choose a bucket to store the zip file.
+1. Select the zip file in your local environment.
+1. Click deploy
+
 # Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
