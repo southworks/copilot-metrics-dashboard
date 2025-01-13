@@ -29,11 +29,61 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploying a Webapp on Google Cloud Platform (App Engine)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This guide provides step-by-step instructions for deploying a web application to Google Cloud App Engine using a Docker image.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. Create the app.yaml 
+
+    * The app.yaml file is required for configuring the App Engine deployment. This file specifies the type of App Engine instance to use and provides settings for runtime, scaling, resources, and environment variables. When deploying a Docker image, set the runtime to custom and the environment to flex.
+    
+Below is an example app.yaml configuration:
+```
+runtime: custom
+env: flex
+
+automatic_scaling:
+  cpu_utilization:
+    target_utilization: 0.85
+  min_num_instances: 1
+  max_num_instances: 10
+  max_idle_instances: 1
+  cool_down_period_sec: 180
+
+resources:
+  cpu: 1
+  memory_gb: 1
+  disk_size_gb: 10
+
+env_variables:
+  NODE_ENV: 'production'
+  GITHUB_ENTERPRISE: 'southworks'
+  GITHUB_ORGANIZATION: 'southworks'
+  GITHUB_TOKEN: ''
+  GITHUB_API_VERSION: '2022-11-28'
+  GITHUB_API_SCOPE: 'organization'
+  FIREBASE_API_KEY: ''
+  FIREBASE_AUTH_DOMAIN: ''
+  FIREBASE_PROJECT_ID: ''
+  FIREBASE_STORAGE_BUCKET: ''
+  FIREBASE_MESSAGING_SENDER_ID: ''
+  FIREBASE_APP_ID: ''
+```
+2. Set Up Your GCP Project, create a GCP project, ensure you have an active Google Cloud Platform project with billing enabled.
+
+    * Enable required APIs: App Engine API, Cloud Build API
+
+    * Install and configure the Google Cloud CLI: Run "gcloud init" to configure the CLI with your account and project.
+
+3. Configure App Engine in the Google Cloud Console
+
+    * Choose a region: Go to the App Engine page in the Google Cloud Console and select a region for your App Engine instances.
+
+4. Deploy the Application
+
+    * Prepare your project directory: Ensure that both the Dockerfile and app.yaml are located in the root directory of your web application (at the same level as the package.json).
+
+    * Deploy the app: Run the following command in the root directory of your project: "gcloud app deploy" This command will deploy your application to App Engine using the configuration specified in app.yaml and your Dockerfile.
 
 ## How to obtain Firestore credentials
 
