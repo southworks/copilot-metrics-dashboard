@@ -30,7 +30,6 @@ export const getCopilotMetrics = async (
         }
         return getCopilotMetricsForEnterpriseFromApi();
       break;
-      
       // As default option, we can use the organization API endpoint
       default:
         // If we have the required environment variables, we can use the database
@@ -51,7 +50,7 @@ export const getCopilotMetrics = async (
 export const getCopilotMetricsForOrgsFromApi = async (): Promise<
   ServerActionResponse<CopilotUsageOutput[]>
 > => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
@@ -90,7 +89,7 @@ export const getCopilotMetricsForOrgsFromApi = async (): Promise<
 export const getCopilotMetricsForEnterpriseFromApi = async (): Promise<
   ServerActionResponse<CopilotUsageOutput[]>
 > => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
