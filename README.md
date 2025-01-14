@@ -76,6 +76,16 @@ azd up
 azd up --debug
 ```
 
+# How to create the GitHub PAT (Personal access token)
+    1. Go to the following link: https://github.com/settings/personal-access-tokens (Fine-grained tokens)
+    2. Click on "Generate new token" button
+    3. Set token name to "GH Copilot Dashboard"
+    4. Resource owner should be the desired organization
+    5. Set expiration as desired
+    6. Description should be "PAT token for GitHub Copilot Microsoft Metrics Dashboard"
+    7. "Repository access" should be set to "Public Repositories (read-only)"
+    8. On the "Permissions" area add the "Read-only" permission for the organization and the same for GitHub Copilot Business.
+
 # Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
