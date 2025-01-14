@@ -24,7 +24,7 @@ export interface IFilter {
 export const getCopilotSeats = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotSeatsData>> => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
@@ -95,7 +95,7 @@ const getCopilotSeatsFromDatabase = async (
 export const getCopilotSeatsManagement = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotSeatManagementData>> => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
@@ -125,7 +125,7 @@ export const getCopilotSeatsManagement = async (
 const getCopilotSeatsManagementFromAPI = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotSeatManagementData>> => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
