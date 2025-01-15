@@ -1,5 +1,4 @@
 import { ServerActionResponse } from "@/features/common/server-action-response";
-import { getSecret } from "./secrets-service";
 
 interface GitHubConfig {
   organization: string;
@@ -17,7 +16,7 @@ interface FeaturesConfig {
 export const ensureGitHubEnvConfig = async (): Promise<ServerActionResponse<GitHubConfig>> => {
   const organization = process.env.GITHUB_ORGANIZATION;
   const enterprise = process.env.GITHUB_ENTERPRISE;
-  const tokenSecretName = process.env.GITHUB_TOKEN_SECRET_NAME;
+  const token = process.env.GITHUB_TOKEN;
   const version = process.env.GITHUB_API_VERSION;
   let scope = process.env.GITHUB_API_SCOPE;
 
@@ -45,7 +44,7 @@ export const ensureGitHubEnvConfig = async (): Promise<ServerActionResponse<GitH
     };
   }
 
-  if (stringIsNullOrEmpty(tokenSecretName)) {
+  if (stringIsNullOrEmpty(token)) {
     return {
       status: "ERROR",
       errors: [
@@ -55,8 +54,6 @@ export const ensureGitHubEnvConfig = async (): Promise<ServerActionResponse<GitH
       ],
     };
   }
-
-  const token = await getSecret(tokenSecretName);
 
   if (stringIsNullOrEmpty(version)) {
     return {
