@@ -16,7 +16,7 @@ export const MainNavItem: FC<MainNavItemProps> = (props) => {
       href={path}
       className={cn(
         "transition-colors hover:text-foreground flex justify-center gap-2 items-center",
-        activePath.startsWith(path) && path !== "/"
+        (activePath ?? "").startsWith(path) && path !== "/"
           ? "text-foreground"
           : "text-muted-foreground"
       )}
