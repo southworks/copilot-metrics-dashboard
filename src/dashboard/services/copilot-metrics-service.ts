@@ -20,12 +20,12 @@ export const getCopilotMetrics = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   try {
-    const isCosmosConfig = firestoreConfiguration();
+    const isFirestoreConfig = firestoreConfiguration();
     switch(process.env.GITHUB_API_SCOPE) {
       // If we have the required environment variables, we can use the enterprise API endpoint
       case "enterprise":
         // If we have the required environment variables, we can use the database
-        if (isCosmosConfig) {
+        if (isFirestoreConfig) {
           return getCopilotMetricsForEnterpriseFromDatabase(filter);
         }
         return getCopilotMetricsForEnterpriseFromApi();
@@ -33,7 +33,7 @@ export const getCopilotMetrics = async (
       // As default option, we can use the organization API endpoint
       default:
         // If we have the required environment variables, we can use the database
-        if (isCosmosConfig) {
+        if (isFirestoreConfig) {
           return getCopilotMetricsForOrgsFromDatabase(filter);
         }
         return getCopilotMetricsForOrgsFromApi();
