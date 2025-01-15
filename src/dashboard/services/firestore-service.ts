@@ -23,7 +23,7 @@ const getFirebaseConfig = async (): Promise<firebaseConfig> => {
 }
 
 const app = initializeApp(await getFirebaseConfig());
-const db = getFirestore(app, process.env.FIRESTORE_DATABASE_ID || '');
+const db = getFirestore(app);
 
 export const firestoreClient = (): Firestore => {
   const projectId = process.env.FIREBASE_PROJECT_ID;
