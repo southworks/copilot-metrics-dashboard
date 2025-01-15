@@ -15,7 +15,7 @@ const getFirebaseConfig = async (): Promise<firebaseConfig> => {
   return {
     apiKey: process.env.FIREBASE_API_KEY || '',
     authDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
-    projectId: process.env.PROJECT_ID || '',
+    projectId: process.env.FIREBASE_PROJECT_ID || '',
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET || '',
     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
     appId: process.env.FIREBASE_APP_ID || '',
@@ -26,7 +26,7 @@ const app = initializeApp(await getFirebaseConfig());
 const db = getFirestore(app, process.env.FIRESTORE_DATABASE_ID || '');
 
 export const firestoreClient = (): Firestore => {
-  const projectId = process.env.PROJECT_ID;
+  const projectId = process.env.FIREBASE_PROJECT_ID;
 
   if (stringIsNullOrEmpty(projectId)) {
     throw new Error("Missing required environment variable for Firestore project ID");
