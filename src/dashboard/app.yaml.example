@@ -1,0 +1,33 @@
+# [START app_yaml]
+runtime: custom
+env: flex
+
+automatic_scaling:
+  cpu_utilization:
+    target_utilization: 0.85
+  min_num_instances: 1
+  max_num_instances: 8
+  cool_down_period_sec: 180
+
+resources:
+  cpu: 1
+  memory_gb: 1
+  disk_size_gb: 10
+
+env_variables:
+  NODE_ENV: 'production'
+  GITHUB_ENTERPRISE: 'southworks'
+  GITHUB_ORGANIZATION: 'southworks'
+  GITHUB_TOKEN: 'GITHUB_TOKEN'
+  GITHUB_API_VERSION: '2022-11-28'
+  GITHUB_API_SCOPE: 'organization'
+  PROJECT_ID: 'a-rowies'
+  FIREBASE_API_KEY: ''
+  FIREBASE_AUTH_DOMAIN: ''
+  FIREBASE_PROJECT_ID: ''
+  FIREBASE_STORAGE_BUCKET: ''
+  FIREBASE_MESSAGING_SENDER_ID: ''
+  FIREBASE_APP_ID: ''
+  FIRESTORE_DATABASE_ID: ''
+
+# [END app_yaml]
