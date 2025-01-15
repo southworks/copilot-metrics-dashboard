@@ -15,6 +15,14 @@ public class Metrics
     [FirestoreProperty("date")]
     public DateOnly Date { get; set; }
 
+    [JsonPropertyName("full_date")]
+    [FirestoreProperty("full_date")]
+    public DateTime FullDate { get; set; }
+
+    [JsonPropertyName("team_data")]
+    [FirestoreProperty("team_data")]
+    public bool TeamData { get; set; }
+
     [JsonPropertyName("total_active_users")]
     [FirestoreProperty("total_active_users")]
     public int TotalActiveUsers { get; set; }

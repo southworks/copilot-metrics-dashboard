@@ -72,6 +72,9 @@ public class CopilotMetricsIngestion : IHttpFunction
 
         foreach (var metric in metrics)
         {
+            // Ensure all DateTime properties are in UTC for Firestore ingest
+            metric.FullDate = metric.Date.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
+
             var docRef = _firestoreDb.Collection(collectionName).Document(metric.Id);
             var serializedMetrics = System.Text.Json.JsonSerializer.Serialize(metric);
             var deserializedMetric = JsonConvert.DeserializeObject<ExpandoObject>(serializedMetrics);
