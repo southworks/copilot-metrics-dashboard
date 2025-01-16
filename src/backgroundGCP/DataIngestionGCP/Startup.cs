@@ -56,15 +56,20 @@ namespace Microsoft.CopilotDashboard.DataIngestion
 
         private void LoadEnvironmentVariables()
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
-                .Build();
+            var useLocalSettings = Environment.GetEnvironmentVariable("USE_LOCAL_SETTINGS");
 
-            var envVariables = config.GetSection("Values").GetChildren();
-            foreach (var envVariable in envVariables)
+            if (useLocalSettings == null || !useLocalSettings.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
-                Environment.SetEnvironmentVariable(envVariable.Key, envVariable.Value);
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("local.settings.json", optional: false, reloadOnChange: true)
+                    .Build();
+
+                var envVariables = config.GetSection("Values").GetChildren();
+                foreach (var envVariable in envVariables)
+                {
+                    Environment.SetEnvironmentVariable(envVariable.Key, envVariable.Value);
+                }
             }
         }
     }
