@@ -123,6 +123,7 @@ And there will be one Google Cloud Run Function instance per C# function.
     - GITHUB_API_VERSION: 2022-11-28
     - API_KEY: {api_key}*
     - USE_LOCAL_SETTINGS: false
+    - GITHUB_METRICS_TEAMS: "[\"{gh-team-name}\", \"{gh-team-2-name}\"]"**
 1. Click next to go to the Code section.
 1. Under Runtime selection .NET 8.
 1. Under Entry Point add the name of the function to deploy. It can be copied from the list above.
@@ -140,6 +141,8 @@ For the rest of the functions, follow these steps:
 1. Click deploy.
 
 *For the GitHub token and API Key, a secret can be added in the secret manager and referenced in the security and image repo tab. The API key value is arbitrary and can be a GUID for example.
+
+**This setting is optional. Set this if you want to have data separated by teams in the Metrics Dashboard site.
 
 ### Configuring schedule jobs
 
