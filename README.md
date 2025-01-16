@@ -85,6 +85,15 @@ The deployment in GCP requires Firestore database, Cloud Run Functions and App E
 1. While in the Google Cloud console, search for Firestore service.
 1. Go to create database.
 1. Create the database and copy the id since it will be used for configuring other services.
+1. In the left panel go to Indexes.
+1. In the Composite tab, click create index.
+1. In the form that will appear, set the following. 
+    1. Collection: 'metrics_history'
+    1. Add field: 'team_data', ascending.
+    1. Add field: 'date', ascending
+    1. Add field: '\__name\_\_' ascending
+    1. Query scope: collection
+1. Click create
 
 ## Configuring Cloud Run Functions
 
