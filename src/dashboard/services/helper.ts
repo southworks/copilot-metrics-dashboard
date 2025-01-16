@@ -1,5 +1,5 @@
 import { format, startOfWeek } from "date-fns";
-import { CopilotUsage, CopilotUsageOutput } from "./copilot-metrics-service";
+import { CopilotUsage, CopilotUsageOutput } from "@/types/copilotUsage";
 
 export const applyTimeFrameLabel = (
   data: CopilotUsage[]

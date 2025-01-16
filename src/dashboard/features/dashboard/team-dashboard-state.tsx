@@ -1,17 +1,15 @@
 "use client";
 
 import { PropsWithChildren } from "react";
-import { Breakdown, CopilotUsageOutput } from "@/types/copilotUsage";
+import { Breakdown, CopilotTeamUsageOutput } from "@/types/copilotUsage";
 import { formatDate } from "@/utils/helpers";
 
 import { proxy, useSnapshot } from "valtio";
 
-import { groupByTimeFrame } from "@/utils/data-mapper";
-import { SeatManagement } from "../common/models";
+import { groupByTimeFrame } from "@/utils/team-data-mapper";
 
 interface IProps extends PropsWithChildren {
-  copilotUsages: CopilotUsageOutput[];
-  seatManagement: SeatManagement;
+  copilotUsages: CopilotTeamUsageOutput[];
 }
 
 export interface DropdownFilterItem {
@@ -22,19 +20,16 @@ export interface DropdownFilterItem {
 export type TimeFrame = "daily" | "weekly" | "monthly";
 
 class DashboardState {
-  public filteredData: CopilotUsageOutput[] = [];
+  public filteredData: CopilotTeamUsageOutput[] = [];
   public languages: DropdownFilterItem[] = [];
   public editors: DropdownFilterItem[] = [];
   public teams: DropdownFilterItem[] = [];
   public timeFrame: TimeFrame = "weekly";
 
-  public seatManagement: SeatManagement = {} as SeatManagement;
-
-  private apiData: CopilotUsageOutput[] = [];
+  private apiData: CopilotTeamUsageOutput[] = [];
 
   public initData(
-    data: CopilotUsageOutput[],
-    seatManagement: SeatManagement
+    data: CopilotTeamUsageOutput[]
   ): void {
     this.apiData = [...data];
     this.filteredData = [...data];
@@ -42,7 +37,6 @@ class DashboardState {
     this.languages = this.extractUniqueLanguages();
     this.editors = this.extractUniqueEditors();
     this.teams = this.extractUniqueTeams();
-    this.seatManagement = seatManagement;
   }
 
   public filterTeam(team: string): void {
@@ -86,7 +80,7 @@ class DashboardState {
     const selectedEditors = this.editors.filter((item) => item.isSelected);
     const selectedTeams = this.teams.filter((item) => item.isSelected);
 
-    let data: CopilotUsageOutput[] = [];
+    let data: CopilotTeamUsageOutput[] = [];
 
     if (selectedTeams.length !== 0) {
       data = this.aggregatedDataByTimeFrame(selectedTeams);
@@ -170,10 +164,10 @@ class DashboardState {
 
   private aggregatedDataByTimeFrame(
     selectedTeams: DropdownFilterItem[] = []
-  ): CopilotUsageOutput[] {
+  ): CopilotTeamUsageOutput[] {
     let items = JSON.parse(
       JSON.stringify(this.apiData)
-    ) as Array<CopilotUsageOutput>;
+    ) as Array<CopilotTeamUsageOutput>;
 
     if (selectedTeams.length !== 0) {
       items = items.filter((item) => {
@@ -202,7 +196,7 @@ class DashboardState {
       acc[timeFrameLabel].push(item);
 
       return acc;
-    }, {} as Record<string, CopilotUsageOutput[]>);
+    }, {} as Record<string, CopilotTeamUsageOutput[]>);
 
     return groupByTimeFrame(groupedByTimeFrame);
   }
@@ -217,8 +211,7 @@ export const useDashboard = () => {
 export const DataProvider = ({
   children,
   copilotUsages,
-  seatManagement,
 }: IProps) => {
-  dashboardStore.initData(copilotUsages, seatManagement);
+  dashboardStore.initData(copilotUsages);
   return <>{children}</>;
 };

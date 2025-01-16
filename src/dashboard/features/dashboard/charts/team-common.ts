@@ -1,4 +1,4 @@
-import { Breakdown, CopilotUsageOutput } from "@/types/copilotUsage";
+import { Breakdown, CopilotTeamUsageOutput } from "@/types/copilotUsage";
 import { PieChartData } from "./language";
 
 export interface AcceptanceRateData {
@@ -7,7 +7,7 @@ export interface AcceptanceRateData {
 }
 
 export const computeAcceptanceAverage = (
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ): AcceptanceRateData[] => {
   const rates = filteredData.map((item) => {
     let cumulatedLinesAccepted = 0;
@@ -35,17 +35,17 @@ export const computeAcceptanceAverage = (
 
 export interface ActiveUserData {
   totalUsers: number;
-  totalChatUsers: number;
+  totalEngagedUsers: number;
   timeFrameDisplay: string;
 }
 
 export function getActiveUsers(
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ): ActiveUserData[] {
   const rates = filteredData.map((item) => {
     return {
       totalUsers: item.total_active_users,
-      totalChatUsers: item.total_active_chat_users,
+      totalEngagedUsers: item.total_engaged_users,
       timeFrameDisplay: item.time_frame_display,
     };
   });
@@ -54,7 +54,7 @@ export function getActiveUsers(
 }
 
 export const computeEditorData = (
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ): Array<PieChartData> => {
   const editorMap = new Map<string, PieChartData>();
 
@@ -96,7 +96,7 @@ export const computeEditorData = (
 };
 
 export const computeLanguageData = (
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ): Array<PieChartData> => {
   const languageMap = new Map<string, PieChartData>();
 
@@ -138,7 +138,7 @@ export const computeLanguageData = (
 };
 
 export const computeActiveUserAverage = (
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ) => {
   const activeUsersSum: number = filteredData.reduce(
     (sum: number, item: { total_active_users: number }) =>
@@ -150,6 +150,17 @@ export const computeActiveUserAverage = (
   return averageActiveUsers;
 };
 
+export const computeEngagedUserAverage = (filteredData: CopilotTeamUsageOutput[]) => {
+  const engagedUsersSum: number = filteredData.reduce(
+    (sum: number, item: { total_engaged_users: number }) =>
+      sum + item.total_engaged_users,
+    0
+  );
+
+  const averageEngagedUsers = engagedUsersSum / filteredData.length;
+  return averageEngagedUsers;
+};
+
 export const computeAdoptionRate = (seatManagement: any) => {
   const adoptionRate =
     (seatManagement.seat_breakdown.active_this_cycle /
@@ -159,7 +170,7 @@ export const computeAdoptionRate = (seatManagement: any) => {
 };
 
 export const computeCumulativeAcceptanceAverage = (
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ) => {
   const acceptanceAverages = computeAcceptanceAverage(filteredData);
 
@@ -178,7 +189,7 @@ export interface LineSuggestionsAndAcceptancesData {
 }
 
 export function totalLinesSuggestedAndAccepted(
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ): LineSuggestionsAndAcceptancesData[] {
   const codeLineSuggestionsAndAcceptances = filteredData.map((item) => {
     let total_lines_accepted = 0;
@@ -206,7 +217,7 @@ export interface SuggestionAcceptanceData {
 }
 
 export function totalSuggestionsAndAcceptances(
-  filteredData: CopilotUsageOutput[]
+  filteredData: CopilotTeamUsageOutput[]
 ): SuggestionAcceptanceData[] {
   const rates = filteredData.map((item) => {
     let totalAcceptancesCount = 0;
