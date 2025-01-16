@@ -59,6 +59,15 @@ namespace Microsoft.CopilotDashboard.DataIngestion.Services
             }
             _logger.LogInformation($"Fetched data from {requestUri}");
             var metrics = AddIds((await response.Content.ReadFromJsonAsync<Metrics[]>())!, type, orgOrEnterpriseName, team);
+
+            if (!string.IsNullOrWhiteSpace(team))
+            {
+                foreach (var metric in metrics)
+                {
+                    metric.TeamData = true;
+                }
+            }
+
             return metrics;
         }
 

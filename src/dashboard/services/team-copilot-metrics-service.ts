@@ -105,12 +105,8 @@ const applyTimeFrameLabel = (
 export const getCopilotMetricsHistoryFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotTeamUsageOutput[]>> => {
-  const db = firestoreClient();
-  const metricsHistoryCollection = collection(db, "metrics_history");
-
   let start = "";
   let end = "";
-  const maxDays = 365 * 2; // maximum 2 years of data
   const maximumDays = 31;
 
   if (filter.startDate && filter.endDate) {
@@ -126,12 +122,13 @@ export const getCopilotMetricsHistoryFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
+  const db = firestoreClient();
+  const metricsRef = collection(db, "metrics_history");
   const q = query(
-    metricsHistoryCollection,
-    where("day", ">=", start),
-    where("day", "<=", end),
-    where("id", ">=", `org-${process.env.GITHUB_ORGANIZATION}-`),
-    where("id", "<=", `org-${process.env.GITHUB_ORGANIZATION}-\uf8ff`)
+    metricsRef,
+    where("date", ">=", start),
+    where("date", "<=", end),
+    where("team_data", "==", true)
   );
 
   const querySnapshot = await getDocs(q);
@@ -141,8 +138,8 @@ export const getCopilotMetricsHistoryFromDatabase = async (
   });
 
   const adaptedMetrics = adaptMetricsToUsage(resources);
-
   const dataWithTimeFrame = applyTimeFrameLabel(adaptedMetrics);
+  
   return {
     status: "OK",
     response: dataWithTimeFrame,
