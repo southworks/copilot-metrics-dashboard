@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 import { stringIsNullOrEmpty } from "../utils/helpers";
 
 type firebaseConfig = {
@@ -23,7 +24,19 @@ const getFirebaseConfig = async (): Promise<firebaseConfig> => {
 }
 
 const app = initializeApp(await getFirebaseConfig());
+const auth = getAuth(app);
 const db = getFirestore(app);
+
+const initializeAuth = async () => {
+  try {
+    await signInAnonymously(auth);
+    console.log('Anonymous auth successful');
+  } catch (error) {
+    console.error('Error during anonymous authentication:', error);
+  }
+};
+
+initializeAuth();
 
 export const firestoreClient = (): Firestore => {
   const projectId = process.env.FIREBASE_PROJECT_ID;
