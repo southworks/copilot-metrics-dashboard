@@ -9,6 +9,8 @@ using Microsoft.CopilotDashboard.DataIngestion.Interfaces;
 using Google.Cloud.Firestore;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using System.Collections.Generic;
+using System.Text.Json;
 
 [assembly: FunctionsStartup(typeof(Microsoft.CopilotDashboard.DataIngestion.Startup))]
 
@@ -29,8 +31,16 @@ namespace Microsoft.CopilotDashboard.DataIngestion
             };
 
             FirestoreDb firestoreDb = builder.Build();
+
             // Register HttpClient and configure options
-            services.Configure<GithubMetricsApiOptions>(context.Configuration.GetSection("GITHUB_METRICS"));
+            var metricsSection = Environment.GetEnvironmentVariable("GITHUB_METRICS_TEAMS");
+            if (metricsSection != null)
+            {
+                services.Configure<GithubMetricsApiOptions>(options =>
+                {
+                    options.Teams = JsonSerializer.Deserialize<List<string>>(metricsSection)?.ToArray();
+                });
+            }
 
             // Register custom services
             services.AddHttpClient();
