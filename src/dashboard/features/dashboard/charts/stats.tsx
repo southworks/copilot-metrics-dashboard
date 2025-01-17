@@ -19,17 +19,17 @@ export const Stats = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 col-span-4">
       <StatsCard
         title="Acceptance average"
-        description="Inline code acceptance average"
+        description="The acceptance average is calculated as the cumulative ratio of total lines accepted to total lines suggested, multiplied by 100."
         value={acceptanceAverage.toFixed(2) + "%"}
       ></StatsCard>
       <StatsCard
         title="Active users"
-        description="Average active users"
+        description="The average number of active users is calculated by averaging the total active users over the selected time frame."
         value={averageActiveUsers.toFixed(0) + ""}
       ></StatsCard>
       <StatsCard
         title="Adoption rate"
-        description="Copilot adoption rate by active users"
+        description="The adoption rate is calculated as the percentage of active users this cycle out of the total seats available."
         value={adoptionRate.toFixed(0) + "%"}
       ></StatsCard>
       <Overview />

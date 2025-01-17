@@ -24,8 +24,7 @@ export const AcceptanceRate = () => {
     <Card className="col-span-4">
       <ChartHeader
         title="Acceptance rate"
-        description=" The ratio of accepted lines to the total lines suggested by GitHub
-          Copilot"
+        description="The acceptance rate is calculated as the ratio of the total lines accepted to the total lines suggested, multiplied by 100."
       />
 
       <CardContent>
