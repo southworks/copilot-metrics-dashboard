@@ -69,12 +69,8 @@ env_variables:
   GITHUB_TOKEN: ''
   GITHUB_API_VERSION: '2022-11-28'
   GITHUB_API_SCOPE: 'organization'
-  FIREBASE_API_KEY: ''
-  FIREBASE_AUTH_DOMAIN: ''
   FIREBASE_PROJECT_ID: ''
-  FIREBASE_STORAGE_BUCKET: ''
-  FIREBASE_MESSAGING_SENDER_ID: ''
-  FIREBASE_APP_ID: ''
+  DATABASE_ID: ''
 ```
 2. Set Up Your GCP Project, create a GCP project, ensure you have an active Google Cloud Platform project with billing enabled.
 
@@ -93,31 +89,12 @@ env_variables:
 
     * Prepare your project directory: Ensure that both the Dockerfile and app.yaml are located in the root directory of your web application (at the same level as the package.json).
 
-    * Add to the App Engine Service account the following roles: Artifact Registry Create-on-Push Repository Administrator, Artifact Registry Reader/Writer, Logs Writer and Storage Admin
+    * Add to the App Engine Service account the following roles: Artifact Registry Create-on-Push Repository Administrator, Artifact Registry Reader/Writer, Logs Writer, Firebase Viewer and Storage Admin
 
     * Deploy the app: Run the following command in the root directory of your project: "gcloud app deploy" This command will deploy your application to App Engine using the configuration specified in app.yaml and your Dockerfile.
 
 6. Enable IAP for authentication
     * In the Google Cloud Console (web portal) it's necessary to enable the Identity-Aware Proxy for the project and then enable it for the App Engine, the first time IAP is going to ask to configure the OAuth consent page, with this done we can control what users are able to pass the auth process with no need for code changes, to authorize an user you should add a principal to the App Engine from the IAP console page, the principal is the user mail and the necessary role is "IAP-secured Web App User".
-
-## How to obtain Firestore credentials
-
-1. Go to the Firebase Console: Open your web browser and navigate to [Firebase Console](https://console.firebase.google.com/).
-2. Create a New Project: If you don't have a project yet, click on "Add project" and follow the prompts to create a new Firebase project.
-3. Navigate to Project Settings: Once your project is created, click on the gear icon next to "Project Overview" in the left sidebar and select "Project settings".
-4. Get the API Key: In the "General" tab, scroll down to the "Your apps" section. If you haven't added an app yet, click on the "Add app" button and follow the prompts to register your app (e.g., Web, iOS, Android). After registering your app, you will see the Firebase SDK configuration, which includes the API key.
-5. Copy the API Key: The API key will be listed in the configuration snippet. It looks something like this:
-```json
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-app.firebaseapp.com",
-  projectId: "your-app",
-  storageBucket: "your-app.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
-};
-```
-6. Add the values to the .env file.
 
 ## Deploy to Google Cloud Platform
 
