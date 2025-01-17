@@ -10,9 +10,7 @@ import {
 } from "@/features/common/models";
 import { firestoreClient } from "./firestore-service";
 import { format } from "date-fns";
-import { SqlQuerySpec } from "@azure/cosmos";
 import { stringIsNullOrEmpty } from "../utils/helpers";
-import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export interface IFilter {
   date?: Date;
@@ -55,7 +53,7 @@ const getCopilotSeatsFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotSeatsData>> => {
   const db = firestoreClient();
-  const seatsHistoryCollection = collection(db, "seats_history");
+  const seatsHistoryCollection = db.collection("seats_history");
 
   let date = "";
   const maxDays = 365 * 2; // maximum 2 years of data
@@ -67,23 +65,24 @@ const getCopilotSeatsFromDatabase = async (
     date = format(today, "yyyy-MM-dd");
   }
 
-  let constraints = [where("date", "==", date)];
+  let query = seatsHistoryCollection.where("date", "==", date);
+
   if (filter.enterprise) {
-    constraints.push(where("enterprise", "==", filter.enterprise));
+    query = query.where("enterprise", "==", filter.enterprise);
   }
   if (filter.organization) {
-    constraints.push(where("organization", "==", filter.organization));
+    query = query.where("organization", "==", filter.organization);
   }
   if (filter.team) {
-    constraints.push(where("team", "==", filter.team));
+    query = query.where("team", "==", filter.team);
   }
 
-  const q = query(seatsHistoryCollection, ...constraints);
-
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await query.get();
   const resources: CopilotSeatsData[] = [];
+
   querySnapshot.forEach((doc) => {
-    resources.push(doc.data() as CopilotSeatsData);
+    const data = JSON.parse(JSON.stringify(doc.data()));
+    resources.push(data as CopilotSeatsData);
   });
 
   return {
@@ -257,12 +256,12 @@ const getCopilotSeatsManagementFromAPI = async (
 const getNextUrlFromLinkHeader = (linkHeader: string | null): string | null => {
   if (!linkHeader) return null;
 
-  const links = linkHeader.split(',');
+  const links = linkHeader.split(",");
   for (const link of links) {
     const match = link.match(/<([^>]+)>;\s*rel="([^"]+)"/);
-    if (match && match[2] === 'next') {
+    if (match && match[2] === "next") {
       return match[1];
     }
   }
   return null;
-}
+};
