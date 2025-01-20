@@ -124,7 +124,7 @@ And there will be one Google Cloud Run Function instance per C# function.
     - GITHUB_API_VERSION: 2022-11-28
     - API_KEY: {api_key}*
     - USE_LOCAL_SETTINGS: false
-    - GITHUB_METRICS_TEAMS: "[\"{gh-team-name}\", \"{gh-team-2-name}\"]"**
+    - GITHUB_METRICS_TEAMS: ["{gh-team-name}", "{gh-team-2-name}"]**
 1. Click next to go to the Code section.
 1. Under Runtime selection .NET 8.
 1. Under Entry Point add the name of the function to deploy. It can be copied from the list above.
