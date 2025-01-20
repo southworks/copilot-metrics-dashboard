@@ -13,7 +13,7 @@ interface FeaturesConfig {
   seats: boolean;
 }
 
-export const ensureGitHubEnvConfig = (): ServerActionResponse<GitHubConfig> => {
+export const ensureGitHubEnvConfig = async (): Promise<ServerActionResponse<GitHubConfig>> => {
   const organization = process.env.GITHUB_ORGANIZATION;
   const enterprise = process.env.GITHUB_ENTERPRISE;
   const token = process.env.GITHUB_TOKEN;

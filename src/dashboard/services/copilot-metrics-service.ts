@@ -8,7 +8,6 @@ import { firestoreClient, firestoreConfiguration } from "./firestore-service";
 import { ensureGitHubEnvConfig } from "./env-service";
 import { applyTimeFrameLabel } from "./helper";
 import { sampleData } from "./sample-data";
-import { collection, query, where, getDocs } from 'firebase/firestore';
 import { CopilotUsageOutput } from "@/types/copilotUsage";
 
 export interface IFilter {
@@ -20,25 +19,24 @@ export const getCopilotMetrics = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   try {
-    const isCosmosConfig = firestoreConfiguration();
-    switch(process.env.GITHUB_API_SCOPE) {
+    const isFirestoreConfig = firestoreConfiguration();
+    switch (process.env.GITHUB_API_SCOPE) {
       // If we have the required environment variables, we can use the enterprise API endpoint
       case "enterprise":
         // If we have the required environment variables, we can use the database
-        if (isCosmosConfig) {
+        if (isFirestoreConfig) {
           return getCopilotMetricsForEnterpriseFromDatabase(filter);
         }
         return getCopilotMetricsForEnterpriseFromApi();
-      break;
-      
+        break;
       // As default option, we can use the organization API endpoint
       default:
         // If we have the required environment variables, we can use the database
-        if (isCosmosConfig) {
+        if (isFirestoreConfig) {
           return getCopilotMetricsForOrgsFromDatabase(filter);
         }
         return getCopilotMetricsForOrgsFromApi();
-      break;
+        break;
     }
   } catch (e) {
     return {
@@ -51,7 +49,7 @@ export const getCopilotMetrics = async (
 export const getCopilotMetricsForOrgsFromApi = async (): Promise<
   ServerActionResponse<CopilotUsageOutput[]>
 > => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
@@ -90,7 +88,7 @@ export const getCopilotMetricsForOrgsFromApi = async (): Promise<
 export const getCopilotMetricsForEnterpriseFromApi = async (): Promise<
   ServerActionResponse<CopilotUsageOutput[]>
 > => {
-  const env = ensureGitHubEnvConfig();
+  const env = await ensureGitHubEnvConfig();
 
   if (env.status !== "OK") {
     return env;
@@ -130,7 +128,7 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   const db = firestoreClient();
-  const historyCollection = collection(db, "history");
+  const historyCollection = db.collection("history");
 
   let start = "";
   let end = "";
@@ -150,13 +148,9 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
-  const q = query(
-    historyCollection,
-    where("day", ">=", start),
-    where("day", "<=", end)
-  );
+  const q = historyCollection.where("day", ">=", start).where("day", "<=", end);
 
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await q.get();
   const resources: CopilotUsageOutput[] = [];
   querySnapshot.forEach((doc) => {
     resources.push(doc.data() as CopilotUsageOutput);
@@ -173,7 +167,7 @@ export const getCopilotMetricsForEnterpriseFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   const db = firestoreClient();
-  const historyCollection = collection(db, "history");
+  const historyCollection = db.collection("history");
 
   let start = "";
   let end = "";
@@ -192,13 +186,10 @@ export const getCopilotMetricsForEnterpriseFromDatabase = async (
     end = format(todayDate, "yyyy-MM-dd");
   }
 
-  const q = query(
-    historyCollection,
-    where("day", ">=", start),
-    where("day", "<=", end)
-  );
+  const q = historyCollection.where("day", ">=", start).where("day", "<=", end);
 
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await q.get();
+
   const resources: CopilotUsageOutput[] = [];
   querySnapshot.forEach((doc) => {
     resources.push(doc.data() as CopilotUsageOutput);

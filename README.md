@@ -2,6 +2,7 @@
 
 1. [Introduction](#introduction)
 2. [Deploy to Azure](#deploy-to-azure)
+3. [Deploy to Google Cloud Platform](#deploy-to-google-cloud-platform)
 
 # Introduction
 
@@ -140,7 +141,7 @@ For the rest of the functions, follow these steps:
 1. Under Entry Point change the name of the function to the one that will be deployed. It can be copied from the list above.
 1. Click deploy.
 
-*For the GitHub token and API Key, a secret can be added in the secret manager and referenced in the security and image repo tab. The API key value is arbitrary and can be a GUID for example.
+*For the GitHub token and API Key, a secret can be added in the secret manager and referenced in the security and image repo tab. The API key value is arbitrary and can be a GUID for example. The steps to generate a GitHub token can be found [below](#how-to-create-a-github-pat-personal-access-token)
 
 **This setting is optional. Set this if you want to have data separated by teams in the Metrics Dashboard site.
 
@@ -189,8 +190,21 @@ Click the "Create" button to save and create your scheduled job.
 - Auth Header: Add OIDC token
 - Service Account: your-service-account@your-project-id.iam.gserviceaccount.com
 
-# Contributing
+## Deploy dashboard to App Engine
 
+To deploy the frontend dashboard, follow [these steps](/src/dashboard/README.md).
+
+# How to create a GitHub PAT (Personal access token)
+1. Go to the following link: https://github.com/settings/personal-access-tokens (Fine-grained tokens)
+2. Click on "Generate new token" button
+3. Set token name to "GH Copilot Dashboard"
+4. Resource owner should be the desired organization
+5. Set expiration as desired
+6. Description should be "PAT token for GitHub Copilot Microsoft Metrics Dashboard"
+7. "Repository access" should be set to "Public Repositories (read-only)"
+8. On the "Permissions" area add the "Read-only" permission for the organization and the same for GitHub Copilot Business.
+
+# Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
