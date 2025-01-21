@@ -16,8 +16,8 @@ resources:
 
 env_variables:
   NODE_ENV: 'production'
-  GITHUB_ENTERPRISE: 'southworks'
-  GITHUB_ORGANIZATION: 'southworks'
+  GITHUB_ENTERPRISE: 'enterprise-name'
+  GITHUB_ORGANIZATION: 'organization-name'
   GITHUB_TOKEN: ''
   GITHUB_API_VERSION: '2022-11-28'
   GITHUB_API_SCOPE: 'organization'

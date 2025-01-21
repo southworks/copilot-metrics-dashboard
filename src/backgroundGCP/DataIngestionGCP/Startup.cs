@@ -68,7 +68,7 @@ namespace Microsoft.CopilotDashboard.DataIngestion
         {
             var useLocalSettings = Environment.GetEnvironmentVariable("USE_LOCAL_SETTINGS");
 
-            if (useLocalSettings == null || !useLocalSettings.Equals("true", StringComparison.OrdinalIgnoreCase))
+            if (useLocalSettings != null && useLocalSettings.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 var config = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
