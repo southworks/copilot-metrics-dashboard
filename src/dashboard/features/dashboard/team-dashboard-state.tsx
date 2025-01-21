@@ -12,6 +12,10 @@ interface IProps extends PropsWithChildren {
   copilotUsages: CopilotTeamUsageOutput[];
 }
 
+interface BusinessUnits {
+  [key: string]: string[];
+}
+
 export interface DropdownFilterItem {
   value: string;
   isSelected: boolean;
@@ -147,32 +151,61 @@ class DashboardState {
     return editors;
   }
 
+  private getBusinessUnits(): BusinessUnits[] {
+    const businessUnitsEnv = process.env.NEXT_PUBLIC_BUSINESS_UNITS;
+    console.log("NEXT_PUBLIC_BUSINESS_UNITS:", businessUnitsEnv);
+    if (businessUnitsEnv !== null && businessUnitsEnv !== undefined && businessUnitsEnv.trim().length > 0){
+      try {
+        return JSON.parse(businessUnitsEnv);
+      } catch (error) {
+        console.error("Failed to parse NEXT_PUBLIC_BUSINESS_UNITS:", error);
+        throw error;
+      }
+    }else{
+      throw new Error("NEXT_PUBLIC_BUSINESS_UNITS environment variable is not set.");
+    }
+}
+
   private extractUniqueTeams(): DropdownFilterItem[] {
     const teams: DropdownFilterItem[] = [];
-    this.apiData.forEach((item) => {
-      const idParts = item.id.split("-");
-      const teamName = idParts.slice(5).join("-"); // Extract the team name part
-      const index = teams.findIndex((team) => team.value === teamName);
+    try {
+      const businessUnits = this.getBusinessUnits();
+      
+      businessUnits.forEach((businessUnit) => {
+        teams.push({ value: Object.keys(businessUnit)[0], isSelected: false });
+      })
 
-      if (index === -1) {
-        teams.push({ value: teamName, isSelected: false });
-      }
-    });
-
-    return teams;
+      return teams;
+    } catch (error) {
+      console.error("Failed to extract business units: ", error);
+      throw error;
+    }
   }
 
   private aggregatedDataByTimeFrame(
-    selectedTeams: DropdownFilterItem[] = []
+    selectedBusinessUnits: DropdownFilterItem[] = []
   ): CopilotTeamUsageOutput[] {
     let items = JSON.parse(
       JSON.stringify(this.apiData)
     ) as Array<CopilotTeamUsageOutput>;
 
-    if (selectedTeams.length !== 0) {
+    const businessUnits = this.getBusinessUnits();
+    let selectedTeams: string[] = [];
+
+    if (selectedBusinessUnits.length !== 0) {
+      const filteredBusinessUnits = businessUnits.filter((unit) =>
+        selectedBusinessUnits.some((selected) => Object.keys(unit)[0] === selected.value)
+      );
+
+      filteredBusinessUnits.forEach((unit) => {
+        unit[Object.keys(unit)[0]].forEach((team) => {
+          selectedTeams.push(team);
+        });
+      });
+
       items = items.filter((item) => {
         const teamName = item.id.split("-").slice(5).join("-");
-        return selectedTeams.some((team) => team.value === teamName);
+        return selectedTeams.some((team) => team === teamName);
       });
     }
 
