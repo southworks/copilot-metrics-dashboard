@@ -12,8 +12,15 @@ export function TeamDashboardFilters() {
 
   const { teams: allTeams } = useDashboard();
 
+  const { businessUnits: allBusinessUnits } = useDashboard();
+
   return (
     <div className="flex gap-2 flex-1">
+      <DropdownFilter
+        name={"Business unit"}
+        allItems={allBusinessUnits}
+        onSelect={(e) => dashboardStore.filterBusinessUnit(e)}
+      />
       <DropdownFilter
         name={"Team"}
         allItems={allTeams}

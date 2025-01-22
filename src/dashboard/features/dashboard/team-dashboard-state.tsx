@@ -28,6 +28,7 @@ class DashboardState {
   public languages: DropdownFilterItem[] = [];
   public editors: DropdownFilterItem[] = [];
   public teams: DropdownFilterItem[] = [];
+  public businessUnits: DropdownFilterItem[] = [];
   public timeFrame: TimeFrame = "weekly";
 
   private apiData: CopilotTeamUsageOutput[] = [];
@@ -41,10 +42,19 @@ class DashboardState {
     this.languages = this.extractUniqueLanguages();
     this.editors = this.extractUniqueEditors();
     this.teams = this.extractUniqueTeams();
+    this.businessUnits = this.extractBusinessUnits();
   }
 
   public filterTeam(team: string): void {
     const item = this.teams.find((item) => item.value.toLowerCase() === team);
+    if (item) {
+      item.isSelected = !item.isSelected;
+      this.applyFilters();
+    }
+  }
+
+  public filterBusinessUnit(businessUnit: string): void {
+    const item = this.businessUnits.find((item) => item.value.toLowerCase() === businessUnit);
     if (item) {
       item.isSelected = !item.isSelected;
       this.applyFilters();
@@ -71,6 +81,7 @@ class DashboardState {
     this.languages.forEach((item) => (item.isSelected = false));
     this.editors.forEach((item) => (item.isSelected = false));
     this.teams.forEach((item) => (item.isSelected = false));
+    this.businessUnits.forEach((item) => (item.isSelected = false));
     this.applyFilters();
   }
 
@@ -83,13 +94,20 @@ class DashboardState {
     const selectedLanguages = this.languages.filter((item) => item.isSelected);
     const selectedEditors = this.editors.filter((item) => item.isSelected);
     const selectedTeams = this.teams.filter((item) => item.isSelected);
+    const selectedBusinessUnits = this.businessUnits.filter((item) => item.isSelected);
 
     let data: CopilotTeamUsageOutput[] = [];
 
+    if (selectedBusinessUnits.length !== 0) {
+      data = this.aggregateBusinessUnitsDataByTimeFrame(selectedBusinessUnits);
+    }
+    
     if (selectedTeams.length !== 0) {
       data = this.aggregatedDataByTimeFrame(selectedTeams);
-    } else {
-      data = this.aggregatedDataByTimeFrame();
+    }
+
+    if (selectedBusinessUnits.length === 0 && selectedTeams.length === 0) {
+        data = this.aggregatedDataByTimeFrame();
     }
 
     if (selectedLanguages.length !== 0) {
@@ -153,7 +171,6 @@ class DashboardState {
 
   private getBusinessUnits(): BusinessUnits[] {
     const businessUnitsEnv = process.env.NEXT_PUBLIC_BUSINESS_UNITS;
-    console.log("NEXT_PUBLIC_BUSINESS_UNITS:", businessUnitsEnv);
     if (businessUnitsEnv !== null && businessUnitsEnv !== undefined && businessUnitsEnv.trim().length > 0){
       try {
         return JSON.parse(businessUnitsEnv);
@@ -164,9 +181,9 @@ class DashboardState {
     }else{
       throw new Error("NEXT_PUBLIC_BUSINESS_UNITS environment variable is not set.");
     }
-}
+  }
 
-  private extractUniqueTeams(): DropdownFilterItem[] {
+  private extractBusinessUnits(): DropdownFilterItem[] {
     const teams: DropdownFilterItem[] = [];
     try {
       const businessUnits = this.getBusinessUnits();
@@ -182,12 +199,24 @@ class DashboardState {
     }
   }
 
-  private aggregatedDataByTimeFrame(
+  private extractUniqueTeams(): DropdownFilterItem[] {
+    const teams: DropdownFilterItem[] = [];
+    this.apiData.forEach((item) => {
+      const idParts = item.id.split("-");
+      const teamName = idParts.slice(5).join("-"); // Extract the team name part
+      const index = teams.findIndex((team) => team.value === teamName);
+
+      if (index === -1) {
+        teams.push({ value: teamName, isSelected: false });
+      }
+    });
+
+    return teams;
+  }
+
+  private aggregateBusinessUnitsDataByTimeFrame(
     selectedBusinessUnits: DropdownFilterItem[] = []
   ): CopilotTeamUsageOutput[] {
-    let items = JSON.parse(
-      JSON.stringify(this.apiData)
-    ) as Array<CopilotTeamUsageOutput>;
 
     const businessUnits = this.getBusinessUnits();
     let selectedTeams: string[] = [];
@@ -203,9 +232,28 @@ class DashboardState {
         });
       });
 
+      const selectedTeamsDropdownItems: DropdownFilterItem[] = selectedTeams.map((team) => ({
+        value: team,
+        isSelected: true,
+      }));
+
+      return this.aggregatedDataByTimeFrame(selectedTeamsDropdownItems);
+    }
+
+    return this.aggregatedDataByTimeFrame();
+  }
+
+  private aggregatedDataByTimeFrame(
+    selectedTeams: DropdownFilterItem[] = []
+  ): CopilotTeamUsageOutput[] {
+    let items = JSON.parse(
+      JSON.stringify(this.apiData)
+    ) as Array<CopilotTeamUsageOutput>;
+
+    if (selectedTeams.length !== 0) {
       items = items.filter((item) => {
         const teamName = item.id.split("-").slice(5).join("-");
-        return selectedTeams.some((team) => team === teamName);
+        return selectedTeams.some((team) => team.value === teamName);
       });
     }
 
