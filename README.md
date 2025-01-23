@@ -192,7 +192,7 @@ Click the "Create" button to save and create your scheduled job.
 
 ## Deploy dashboard to App Engine
 
-To deploy the frontend dashboard, follow [these steps](/src/dashboard/README.md).
+To deploy the frontend dashboard, follow [these steps](/src/dashboard/README.md#deploying-the-dashboard-on-google-cloud-platform-app-engine).
 
 # How to create a GitHub PAT (Personal access token)
 1. Go to the following link: https://github.com/settings/personal-access-tokens (Fine-grained tokens)

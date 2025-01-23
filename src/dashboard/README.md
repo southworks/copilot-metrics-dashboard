@@ -64,9 +64,19 @@ env_variables:
 ```
 2. Set Up Your GCP Project, create a GCP project, ensure you have an active Google Cloud Platform project with billing enabled.
 
-    * Enable required APIs: App Engine API, Cloud Build API
+    * Enable Cloud Build API:
+      * Go to the [Google Cloud Console](https://console.cloud.google.com/)
+      * In the top navigation bar, click on the project dropdown and select the project where you want to enable the API.
+      * In the left-hand navigation menu, go to APIs & Services > Library.
+      * In the API Library, use the search bar to search for "Cloud Build API".
+      * Click on the "Cloud Build API" from the search results.
+      * Click the "Enable" button to enable the API for your project.
 
-    * Install and configure the Google Cloud CLI: Run "gcloud init" to configure the CLI with your account and project.
+    * Install and configure the Google Cloud CLI: 
+      * Go to the [Google Cloud SDK download page](https://cloud.google.com/sdk/docs/install)
+      * Download the installer and run it.
+      * To initialize the SDK, open a command prompt window and run 'gcloud init'
+      * Follow the prompts to authenticate and configure the SDK.
 
 3. Configure App Engine in the Google Cloud Console
 
@@ -79,12 +89,31 @@ env_variables:
 
     * Prepare your project directory: Ensure that both the Dockerfile and app.yaml are located in the root directory of your web application (at the same level as the package.json).
 
-    * Add to the App Engine Service account the following roles: Artifact Registry Create-on-Push Repository Administrator, Artifact Registry Reader/Writer, Logs Writer, Firebase Viewer and Storage Admin
+    * Add to the App Engine Service account the following roles: Artifact Registry Create-on-Push Repository Administrator, Artifact Registry Reader/Writer, Logs Writer, Firebase Viewer and Storage Admin:
+       * Go to the [Google Cloud Console](https://console.cloud.google.com/).
+       * In the top navigation bar, click on the project dropdown and select the project where your App Engine service is located.
+       * In the left-hand navigation menu, go to IAM & Admin > IAM. Or search IAM in the top search bar.
+       * In the IAM page, find the service account associated with your App Engine. It typically has the format YOUR_PROJECT_ID@appspot.gserviceaccount.com.
+       * Click the pencil icon (Edit) next to the service account to edit its permissions.
+       * In the "Edit permissions" panel, click on Add another role.
+       * Use the search bar to find and add the following roles one by one:
+          * Artifact Registry Create-on-Push Repository Administrator
+          * Artifact Registry Reader
+          * Artifact Registry Writer
+          * Logs Writer
+          * Firebase Viewer
+          * Storage Admin
+       * After adding all the required roles, click Save to apply the changes.
 
-    * Deploy the app: Run the following command in the root directory of your project: "gcloud app deploy" This command will deploy your application to App Engine using the configuration specified in app.yaml and your Dockerfile.
+    * Deploy the app: Run the following command in the src/dashboard directory where the app.yaml file is located: "gcloud app deploy" This command will deploy your application to App Engine using the configuration specified in app.yaml and your Dockerfile.
 
 6. Enable IAP for authentication
-    * In the Google Cloud Console (web portal) it's necessary to enable the Identity-Aware Proxy for the project and then enable it for the App Engine, the first time IAP is going to ask to configure the OAuth consent page, with this done we can control what users are able to pass the auth process with no need for code changes, to authorize an user you should add a principal to the App Engine from the IAP console page, the principal is the user mail and the necessary role is "IAP-secured Web App User".
+    * In the Google Cloud Console (web portal) it's necessary to enable the Identity-Aware Proxy for the project and then enable it for the App Engine, the first time IAP is going to ask to configure the OAuth consent page, with this done it allows control for what users are able to pass the auth process with no need for code changes, to authorize a user you should add a principal to the App Engine from the IAP console page, the principal is the user mail and the necessary role is "IAP-secured Web App User".
+    * To enable Identity-Aware Proxy:
+      * Go to the [Google Cloud Console](https://console.cloud.google.com/) and search for Identity-Aware Proxy in the top search bar or in the left-hand navigation menu, go to Security > Identity-Aware Proxy.
+      * If IAP is not already enabled, you will see a prompt to enable it. Click on Enable IAP.
+      * In the IAP page, you will see a list of resources. Find your App Engine application in the list.
+      * Click on the IAP toggle switch next to your App Engine application to enable IAP for it.
 
 # Configuring settings when running the frontend in a container
 
