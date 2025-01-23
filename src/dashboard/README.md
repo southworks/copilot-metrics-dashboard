@@ -90,20 +90,20 @@ env_variables:
     * Prepare your project directory: Ensure that both the Dockerfile and app.yaml are located in the root directory of your web application (at the same level as the package.json).
 
     * Add to the App Engine Service account the following roles: Artifact Registry Create-on-Push Repository Administrator, Artifact Registry Reader/Writer, Logs Writer, Firebase Viewer and Storage Admin:
-    * Go to the [Google Cloud Console](https://console.cloud.google.com/).
-    * In the top navigation bar, click on the project dropdown and select the project where your App Engine service is located.
-    * In the left-hand navigation menu, go to IAM & Admin > IAM. Or search IAM in the top search bar.
-    * In the IAM page, find the service account associated with your App Engine. It typically has the format YOUR_PROJECT_ID@appspot.gserviceaccount.com.
-    * Click the pencil icon (Edit) next to the service account to edit its permissions.
-    * In the "Edit permissions" panel, click on Add another role.
-    * Use the search bar to find and add the following roles one by one:
-      * Artifact Registry Create-on-Push Repository Administrator
-      * Artifact Registry Reader
-      * Artifact Registry Writer
-      * Logs Writer
-      * Firebase Viewer
-      * Storage Admin
-    * After adding all the required roles, click Save to apply the changes.
+       * Go to the [Google Cloud Console](https://console.cloud.google.com/).
+       * In the top navigation bar, click on the project dropdown and select the project where your App Engine service is located.
+       * In the left-hand navigation menu, go to IAM & Admin > IAM. Or search IAM in the top search bar.
+       * In the IAM page, find the service account associated with your App Engine. It typically has the format YOUR_PROJECT_ID@appspot.gserviceaccount.com.
+       * Click the pencil icon (Edit) next to the service account to edit its permissions.
+       * In the "Edit permissions" panel, click on Add another role.
+       * Use the search bar to find and add the following roles one by one:
+          * Artifact Registry Create-on-Push Repository Administrator
+          * Artifact Registry Reader
+          * Artifact Registry Writer
+          * Logs Writer
+          * Firebase Viewer
+          * Storage Admin
+       * After adding all the required roles, click Save to apply the changes.
 
     * Deploy the app: Run the following command in the src/dashboard directory where the app.yaml file is located: "gcloud app deploy" This command will deploy your application to App Engine using the configuration specified in app.yaml and your Dockerfile.
 
