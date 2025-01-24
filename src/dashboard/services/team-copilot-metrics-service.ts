@@ -25,6 +25,10 @@ export const getCopilotMetrics = async (
 const editorsModelsToBreakdown = (item: CopilotMetrics): Breakdown[] => {
   const breakdown: Breakdown[] = [];
 
+  if (!item.copilot_ide_code_completions.editors) {
+    return breakdown;
+  }
+
   for (const editor of item.copilot_ide_code_completions.editors) {
     for (const model of editor.models) {
       for (const language of model.languages) {
