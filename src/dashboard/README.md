@@ -62,6 +62,10 @@ env_variables:
   FIREBASE_PROJECT_ID: ''
   DATABASE_ID: ''
 ```
+
+2. Add .env file for business units settings (optional):
+    * In case you want to filter the data by business units, add an file with name '.env' and a setting with the following format in it: "[{"Business unit 1": ["team-copilot"]}, {"Business unit 2": ["team-copilot", "team-copilot-2"]}]". The file should be placed in the same folder as the app.yaml file (src/dashboard folder).
+
 2. Set Up Your GCP Project, create a GCP project, ensure you have an active Google Cloud Platform project with billing enabled.
 
     * Enable Cloud Build API:

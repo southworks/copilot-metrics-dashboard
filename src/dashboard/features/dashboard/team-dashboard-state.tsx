@@ -179,7 +179,7 @@ class DashboardState {
         throw error;
       }
     }else{
-      throw new Error("NEXT_PUBLIC_BUSINESS_UNITS environment variable is not set.");
+      return [];
     }
   }
 
