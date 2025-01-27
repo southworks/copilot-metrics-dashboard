@@ -136,16 +136,16 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
   const maximumDays = 31;
 
   if (filter.startDate && filter.endDate) {
-    start = format(filter.startDate, "yyyy-MM-dd");
-    end = format(filter.endDate, "yyyy-MM-dd");
+    start = format(new Date(filter.startDate).toUTCString(), "yyyy-MM-dd");
+    end = format(new Date(filter.endDate).toUTCString(), "yyyy-MM-dd");
   } else {
     // set the start date to today and the end date to 31 days ago
     const todayDate = new Date();
     const startDate = new Date(todayDate);
     startDate.setDate(todayDate.getDate() - maximumDays);
 
-    start = format(startDate, "yyyy-MM-dd");
-    end = format(todayDate, "yyyy-MM-dd");
+    start = format(new Date(startDate.toUTCString()), "yyyy-MM-dd");
+    end = format(new Date(todayDate.toUTCString()), "yyyy-MM-dd");
   }
 
   const q = historyCollection.where("day", ">=", start).where("day", "<=", end);

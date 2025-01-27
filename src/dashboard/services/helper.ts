@@ -12,8 +12,12 @@ export const applyTimeFrameLabel = (
   const dataWithTimeFrame: CopilotUsageOutput[] = [];
 
   sortedData.forEach((item) => {
-    // Convert 'day' to a Date object and find the start of its week
-    const date = new Date(item.day);
+    // Convert 'day' to a Date object in UTC and find the start of its week
+    const date = new Date(Date.UTC(
+      new Date(item.day).getUTCFullYear(),
+      new Date(item.day).getUTCMonth(),
+      new Date(item.day).getUTCDate()
+    ));
     const weekStart = startOfWeek(date, { weekStartsOn: 1 });
 
     // Create a unique week identifier

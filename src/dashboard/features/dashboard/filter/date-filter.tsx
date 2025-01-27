@@ -19,7 +19,7 @@ export const DateFilter = () => {
   const today = new Date();
   // last 31 days
   const lastThirtyOneDays = new Date(today);
-  lastThirtyOneDays.setDate(today.getDate() - 31);
+  lastThirtyOneDays.setUTCDate(today.getUTCDate() - 31);
 
   const [date, setDate] = React.useState<DateRange>({
     from: lastThirtyOneDays,
