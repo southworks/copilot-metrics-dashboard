@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 
 export const DateFilter = () => {
   const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
 
   const [date, setDate] = React.useState<Date | undefined>(today);
   const [isOpen, setIsOpen] = React.useState(false);
