@@ -6,6 +6,7 @@ import { stringIsNullOrEmpty } from "@/utils/helpers";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { format } from 'date-fns';
 
 interface SeatData {
     user: string;
@@ -59,6 +60,11 @@ const columns: ColumnDef<SeatData>[] = [
     filterFn: col.filter,
 }));
 
+const formatCustomDate = (dateObject: any) => {
+    const date = new Date(dateObject._seconds * 1000);
+    return format(date, 'dd/MM/yyyy');
+  };
+
 export const SeatsList = () => {
     const { filteredData } = useDashboard();
     const currentData = filteredData;
@@ -75,9 +81,9 @@ export const SeatsList = () => {
                     data={(currentData?.seats ?? []).map((seat) => ({
                         user: seat.assignee.login,
                         organization: seat.organization?.login,
-                        createdAt: new Date(seat.created_at).toLocaleDateString(),
-                        updatedAt: new Date(seat.updated_at).toLocaleDateString(),
-                        lastActivityAt: seat.last_activity_at ? new Date(seat.last_activity_at).toLocaleDateString() : "-",
+                        createdAt: formatCustomDate(seat.created_at),
+                        updatedAt: formatCustomDate(seat.updated_at),
+                        lastActivityAt: seat.last_activity_at ? formatCustomDate(seat.last_activity_at) : "-",
                         lastActivityEditor: formatEditorName(seat.last_activity_editor),
                         planType: seat.plan_type,
                         pendingCancellationDate: seat.pending_cancellation_date ? new Date(seat.pending_cancellation_date).toLocaleDateString() : "N/A",
