@@ -136,8 +136,8 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
   const maximumDays = 31;
 
   if (filter.startDate && filter.endDate) {
-    start = format(new Date(filter.startDate).toUTCString(), "yyyy-MM-dd");
-    end = format(new Date(filter.endDate).toUTCString(), "yyyy-MM-dd");
+    start = filter.startDate?.toString();
+    end = filter.endDate?.toString()
   } else {
     // set the start date to today and the end date to 31 days ago
     const todayDate = new Date();
