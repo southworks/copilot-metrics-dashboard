@@ -1,5 +1,6 @@
 import { format, startOfWeek } from "date-fns";
 import { CopilotUsage, CopilotUsageOutput } from "@/types/copilotUsage";
+import { UTCDate } from "@date-fns/utc";
 
 export const applyTimeFrameLabel = (
   data: CopilotUsage[]
@@ -13,12 +14,8 @@ export const applyTimeFrameLabel = (
 
   sortedData.forEach((item) => {
     // Convert 'day' to a Date object in UTC and find the start of its week
-    const date = new Date(Date.UTC(
-      new Date(item.day).getUTCFullYear(),
-      new Date(item.day).getUTCMonth(),
-      new Date(item.day).getUTCDate()
-    ));
-    const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+    const date = new UTCDate(item.day);
+    const weekStart = startOfWeek(date, { weekStartsOn: 0 });
 
     // Create a unique week identifier
     const weekIdentifier = format(weekStart, "MMM dd");
