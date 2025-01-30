@@ -13,22 +13,30 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { UTCDate } from "@date-fns/utc";
 
 export const DateFilter = () => {
-  const today = new Date();
+  const router = useRouter();
+
+  const today = new UTCDate();
   // last 31 days
-  const lastThirtyOneDays = new Date(today);
+  const lastThirtyOneDays = new UTCDate(today);
   lastThirtyOneDays.setUTCDate(today.getUTCDate() - 31);
 
+  const searchParams = useSearchParams();
+  const startDateParam = searchParams.get("startDate");
+  const initialStartDate = startDateParam ? new UTCDate(startDateParam) : lastThirtyOneDays;
+  
+  const endDateParam = searchParams.get("endDate");
+  const initialEndDate = endDateParam ? new UTCDate(endDateParam) : today;
+
   const [date, setDate] = React.useState<DateRange>({
-    from: lastThirtyOneDays,
-    to: today,
+    from: initialStartDate,
+    to: initialEndDate
   });
 
   const [isOpen, setIsOpen] = React.useState(false);
-
-  const router = useRouter();
 
   const applyFilters = () => {
     if (date.from && date.to) {
