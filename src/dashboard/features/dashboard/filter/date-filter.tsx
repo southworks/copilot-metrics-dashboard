@@ -22,7 +22,7 @@ export const DateFilter = () => {
   const today = new UTCDate();
   // last 31 days
   const lastThirtyOneDays = new UTCDate(today);
-  lastThirtyOneDays.setDate(today.getDate() - 31);
+  lastThirtyOneDays.setUTCDate(today.getUTCDate() - 31);
 
   const searchParams = useSearchParams();
   const startDateParam = searchParams.get("startDate");

@@ -3,6 +3,7 @@ import { format, startOfWeek } from "date-fns";
 import { firestoreClient } from "./firestore-service";
 import { CopilotTeamUsageOutput, Breakdown } from "@/types/copilotUsage";
 import { CopilotMetrics } from "@/types/copilotMetrics";
+import { UTCDate } from "@date-fns/utc";
 
 export interface IFilter {
   startDate?: Date;
@@ -85,11 +86,12 @@ const applyTimeFrameLabel = (
   const dataWithTimeFrame: CopilotTeamUsageOutput[] = [];
 
   sortedData.forEach((item) => {
-    // Convert 'day' to a Date object and find the start of its week
-    const date = new Date(item.day);
-    const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+    // Convert 'day' to a Date object in UTC and find the start of its week in UTC
+    const date = new UTCDate(item.day);
 
-    // Create a unique week identifier
+    const weekStart = startOfWeek(date, { weekStartsOn: 0 });
+    
+    // Create a unique week identifier in UTC
     const weekIdentifier = format(weekStart, "MMM dd");
     const monthIdentifier = format(date, "MMM yy");
 
@@ -113,16 +115,16 @@ export const getCopilotMetricsHistoryFromDatabase = async (
   const maximumDays = 31;
 
   if (filter.startDate && filter.endDate) {
-    start = format(filter.startDate, "yyyy-MM-dd");
-    end = format(filter.endDate, "yyyy-MM-dd");
+    start = filter.startDate?.toString();
+    end = filter.endDate?.toString()
   } else {
     // set the start date to today and the end date to 31 days ago
     const todayDate = new Date();
     const startDate = new Date(todayDate);
     startDate.setDate(todayDate.getDate() - maximumDays);
 
-    start = format(startDate, "yyyy-MM-dd");
-    end = format(todayDate, "yyyy-MM-dd");
+    start = format(new Date(startDate.toUTCString()), "yyyy-MM-dd");
+    end = format(new Date(todayDate.toUTCString()), "yyyy-MM-dd");
   }
 
   const db = firestoreClient();
