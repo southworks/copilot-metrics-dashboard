@@ -8,6 +8,7 @@ import { UTCDate } from "@date-fns/utc";
 export interface IFilter {
   startDate?: Date;
   endDate?: Date;
+  teamData?: string;
 }
 
 export const getCopilotMetrics = async (
@@ -48,7 +49,7 @@ const editorsModelsToBreakdown = (item: CopilotMetrics): Breakdown[] => {
   return breakdown;
 };
 
-const adaptMetricsToUsage = (
+export const adaptMetricsToUsage = (
   resource: CopilotMetrics[]
 ): CopilotTeamUsageOutput[] => {
   let adaptedData: CopilotTeamUsageOutput[] = [];
@@ -116,7 +117,7 @@ export const getCopilotMetricsHistoryFromDatabase = async (
 
   if (filter.startDate && filter.endDate) {
     start = filter.startDate?.toString();
-    end = filter.endDate?.toString()
+    end = filter.endDate?.toString();
   } else {
     // set the start date to today and the end date to 31 days ago
     const todayDate = new Date();
@@ -130,10 +131,11 @@ export const getCopilotMetricsHistoryFromDatabase = async (
   const db = firestoreClient();
   const metricsRef = db.collection("metrics_history");
 
-  const q = metricsRef
-    .where("date", ">=", start)
-    .where("date", "<=", end)
-    .where("team_data", "==", true);
+  let q = metricsRef.where("date", ">=", start).where("date", "<=", end);
+
+  if (filter.teamData && filter.teamData == "true") {
+    q = q.where("team_data", "==", true);
+  }
 
   const querySnapshot = await q.get();
   const resources: CopilotMetrics[] = [];
