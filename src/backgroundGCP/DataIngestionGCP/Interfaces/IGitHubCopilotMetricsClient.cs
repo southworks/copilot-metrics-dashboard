@@ -7,6 +7,6 @@ namespace Microsoft.CopilotDashboard.DataIngestion.Interfaces
     {
         Task<Metrics[]> GetCopilotMetricsForEnterpriseAsync(string? team);
         Task<Metrics[]> GetCopilotMetricsForOrganizationAsync(string? team);
-        ValueTask<Metrics[]> GetTestCoPilotMetrics(string? team);
+        ValueTask<Metrics[]> GetTestCopilotMetrics(string? team);
     }
 }
