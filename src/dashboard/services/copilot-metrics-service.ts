@@ -36,8 +36,6 @@ export const getCopilotMetrics = async (
       default:
         // If we have the required environment variables, we can use the database
         if (isFirestoreConfig) {
-          
-          
           return getCopilotMetricsHistoryFromDatabase(filter);
         }
         return getCopilotMetricsForOrgsFromApi();
