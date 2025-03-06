@@ -45,9 +45,7 @@ export const DateFilter = () => {
       const formatEndDate = format(date?.to, "yyyy-MM-dd");
       const formatStartDate = format(date?.from, "yyyy-MM-dd");
 
-      const teamData = teamDataParam ? `&teamData=${teamDataParam}` : '';
-
-      router.push(`?startDate=${formatStartDate}&endDate=${formatEndDate}${teamData}`, {
+      router.push(`?startDate=${formatStartDate}&endDate=${formatEndDate}`, {
         scroll: false,
       });
       router.refresh();
