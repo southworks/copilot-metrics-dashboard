@@ -9,10 +9,13 @@ import { ensureGitHubEnvConfig } from "./env-service";
 import { applyTimeFrameLabel } from "./helper";
 import { sampleData } from "./sample-data";
 import { CopilotUsageOutput } from "@/types/copilotUsage";
+import { CopilotMetrics } from "@/types/copilotMetrics";
+import { adaptMetricsToUsage, getCopilotMetricsHistoryFromDatabase } from "./team-copilot-metrics-service";
 
 export interface IFilter {
   startDate?: Date;
   endDate?: Date;
+  teamData?: string;
 }
 
 export const getCopilotMetrics = async (
@@ -33,7 +36,7 @@ export const getCopilotMetrics = async (
       default:
         // If we have the required environment variables, we can use the database
         if (isFirestoreConfig) {
-          return getCopilotMetricsForOrgsFromDatabase(filter);
+          return getCopilotMetricsHistoryFromDatabase(filter);
         }
         return getCopilotMetricsForOrgsFromApi();
         break;
@@ -128,7 +131,7 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   const db = firestoreClient();
-  const historyCollection = db.collection("history");
+  const historyCollection = db.collection("metrics_history");
 
   let start = "";
   let end = "";
@@ -151,12 +154,14 @@ export const getCopilotMetricsForOrgsFromDatabase = async (
   const q = historyCollection.where("day", ">=", start).where("day", "<=", end);
 
   const querySnapshot = await q.get();
-  const resources: CopilotUsageOutput[] = [];
+  const resources: CopilotMetrics[] = [];
   querySnapshot.forEach((doc) => {
-    resources.push(doc.data() as CopilotUsageOutput);
+    resources.push(doc.data() as CopilotMetrics);
   });
 
-  const dataWithTimeFrame = applyTimeFrameLabel(resources);
+  const adaptedMetrics = adaptMetricsToUsage(resources);
+  const dataWithTimeFrame = applyTimeFrameLabel(adaptedMetrics);
+
   return {
     status: "OK",
     response: dataWithTimeFrame,
@@ -167,7 +172,7 @@ export const getCopilotMetricsForEnterpriseFromDatabase = async (
   filter: IFilter
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   const db = firestoreClient();
-  const historyCollection = db.collection("history");
+  const historyCollection = db.collection("metrics_history");
 
   let start = "";
   let end = "";
@@ -190,12 +195,14 @@ export const getCopilotMetricsForEnterpriseFromDatabase = async (
 
   const querySnapshot = await q.get();
 
-  const resources: CopilotUsageOutput[] = [];
+  const resources: CopilotMetrics[] = [];
   querySnapshot.forEach((doc) => {
-    resources.push(doc.data() as CopilotUsageOutput);
+    resources.push(doc.data() as CopilotMetrics);
   });
 
-  const dataWithTimeFrame = applyTimeFrameLabel(resources);
+  const adaptedMetrics = adaptMetricsToUsage(resources);
+  const dataWithTimeFrame = applyTimeFrameLabel(adaptedMetrics);
+
   return {
     status: "OK",
     response: dataWithTimeFrame,

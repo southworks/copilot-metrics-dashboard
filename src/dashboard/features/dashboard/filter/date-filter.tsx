@@ -31,6 +31,8 @@ export const DateFilter = () => {
   const endDateParam = searchParams.get("endDate");
   const initialEndDate = endDateParam ? new UTCDate(endDateParam) : today;
 
+  const teamDataParam = searchParams.get("teamData");
+  
   const [date, setDate] = React.useState<DateRange>({
     from: initialStartDate,
     to: initialEndDate
@@ -43,7 +45,9 @@ export const DateFilter = () => {
       const formatEndDate = format(date?.to, "yyyy-MM-dd");
       const formatStartDate = format(date?.from, "yyyy-MM-dd");
 
-      router.push(`?startDate=${formatStartDate}&endDate=${formatEndDate}`, {
+      const teamData = teamDataParam ? `&teamData=${teamDataParam}` : '';
+
+      router.push(`?startDate=${formatStartDate}&endDate=${formatEndDate}${teamData}`, {
         scroll: false,
       });
       router.refresh();

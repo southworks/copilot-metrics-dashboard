@@ -39,14 +39,7 @@ public class CopilotMetricsIngestion : IHttpFunction
     public async Task HandleAsync(HttpContext context)
     {
         _logger.LogInformation($"GitHubCopilotMetricsIngestion timer trigger function executed at: {DateTime.Now}");
-        bool.TryParse(Environment.GetEnvironmentVariable("USE_METRICS_API"), out var useMetricsApi);
-        _logger.LogInformation($"USE_METRICS_API: {useMetricsApi}");
-        if (!useMetricsApi)
-        {
-            await context.Response.WriteAsync("Metrics API not selected.");
-            return;
-        }
-
+        
         var metrics = new List<Metrics>();
 
         metrics.AddRange(await ExtractMetrics());
@@ -109,6 +102,6 @@ public class CopilotMetricsIngestion : IHttpFunction
 
     private ValueTask<Metrics[]> LoadTestData(string? teamName)
     {
-        return _metricsClient.GetTestCoPilotMetrics(teamName);
+        return _metricsClient.GetTestCopilotMetrics(teamName);
     }
 }
