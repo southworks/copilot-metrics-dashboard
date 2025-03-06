@@ -19,7 +19,7 @@ export interface IProps {
 }
 
 export default async function TeamDashboard(props: IProps) {
-  const allData = await getCopilotMetrics(props.searchParams);
+  const allData = await getCopilotMetrics(props.searchParams, true);
 
   if (allData.status !== "OK") {
     return <ErrorPage error={allData.errors[0].message} />;

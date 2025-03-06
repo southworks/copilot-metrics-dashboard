@@ -8,14 +8,14 @@ import { UTCDate } from "@date-fns/utc";
 export interface IFilter {
   startDate?: Date;
   endDate?: Date;
-  teamData?: string;
 }
 
 export const getCopilotMetrics = async (
-  filter: IFilter
+  filter: IFilter,
+  teamData: boolean
 ): Promise<ServerActionResponse<CopilotTeamUsageOutput[]>> => {
   try {
-    return getCopilotMetricsHistoryFromDatabase(filter);
+    return getCopilotMetricsHistoryFromDatabase(filter,teamData);
   } catch (e) {
     return {
       status: "ERROR",
@@ -109,7 +109,8 @@ const applyTimeFrameLabel = (
 };
 
 export const getCopilotMetricsHistoryFromDatabase = async (
-  filter: IFilter
+  filter: IFilter,
+  teamData: boolean
 ): Promise<ServerActionResponse<CopilotTeamUsageOutput[]>> => {
   let start = "";
   let end = "";
@@ -133,7 +134,7 @@ export const getCopilotMetricsHistoryFromDatabase = async (
 
   let q = metricsRef.where("date", ">=", start).where("date", "<=", end);
 
-  if (filter.teamData && filter.teamData == "true") {
+  if (teamData) {
     q = q.where("team_data", "==", true);
   }
 
