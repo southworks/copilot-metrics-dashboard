@@ -1,18 +1,4 @@
-# Deployment Guide
-You must have `gcloud` CLI follow the official [Google CLI Install Docs](https://cloud.google.com/sdk/docs/install#linux)
-
-> ![TIP]
-> If you're using linux
-> Once you've downloaded the `.tar.gz` file
-> Ensure it is in your home folder `~/`
-> extract it with `tar -xvf` official docs don't add `-v` flag but it is useful
-> then follow the steps as it
-
-## Login
-```bash
-gcloud auth login
-```
-
+# What does deploy.sh do
 
 ## Create Firestore DB
 1. Create db
@@ -87,6 +73,3 @@ gcloud scheduler jobs create http {hourly_seats_ingestion} --schedule="0 * * * *
 ```
 location: __us-central1__
 *Time Zone: "America/Argentina/Buenos_Aires"*
-
-Until now the architecture looks like this:
-![Architecture Stage 1](docs/deployment/arch-stage-1.png)
