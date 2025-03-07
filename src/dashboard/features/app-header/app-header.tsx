@@ -30,7 +30,7 @@ const MenuItems = () => {
         <LayoutDashboard size={18} strokeWidth={1.4} />
         Dashboard
       </MainNavItem>
-      <MainNavItem path="/teamDashboard?teamData=true">
+      <MainNavItem path="/teamDashboard">
         <LayoutDashboard size={18} strokeWidth={1.4} />
         Team Dashboard
       </MainNavItem>

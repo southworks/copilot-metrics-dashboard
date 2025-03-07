@@ -15,11 +15,11 @@ import { adaptMetricsToUsage, getCopilotMetricsHistoryFromDatabase } from "./tea
 export interface IFilter {
   startDate?: Date;
   endDate?: Date;
-  teamData?: string;
 }
 
 export const getCopilotMetrics = async (
-  filter: IFilter
+  filter: IFilter,
+  teamData: boolean
 ): Promise<ServerActionResponse<CopilotUsageOutput[]>> => {
   try {
     const isFirestoreConfig = firestoreConfiguration();
@@ -36,7 +36,7 @@ export const getCopilotMetrics = async (
       default:
         // If we have the required environment variables, we can use the database
         if (isFirestoreConfig) {
-          return getCopilotMetricsHistoryFromDatabase(filter);
+          return getCopilotMetricsHistoryFromDatabase(filter, teamData);
         }
         return getCopilotMetricsForOrgsFromApi();
         break;
