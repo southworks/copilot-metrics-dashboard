@@ -47,30 +47,39 @@ GITHUB_METRICS_TEAMS: <teams>
 
 ### CopilotMetricsIngestion
 ```bash
-gcloud functions deploy {metrics_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotMetricsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest" --allow-unauthenticated
+gcloud functions deploy {metrics_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotMetricsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest"
 ```
 
 region: __us-central1__
 
 ### CopilotSeatsIngestion
 ```bash
-gcloud functions deploy {seats_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotSeatsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest" --allow-unauthenticated
+gcloud functions deploy {seats_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotSeatsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest"
 ```
 
 
 region: __us-central1__
 
+## Create service account
+```bash
+gcloud iam service-accounts create {sa-name} --display-name "Geitost invoker service account" --description "SA for schedulers to invoke functions securely"
+```
+
+```bash
+gcloud projects add-iam-policy-binding {projectId} --member "serviceAccount:{sa-name}@{projectId}.iam.gserviceaccount.com" --role "roles/run.invoker"
+```
+
 ## Create scheduler
 ### CopilotMetricsIngestion
 ```bash
-gcloud scheduler jobs create http {hourly_metrics_ingestion} --schedule="0 * * * *" --uri={metrics_ingestion_uri} --http-method=GET --time-zone={timezone} --description="Invokes Metrics Ingestion API each hour to populate db" --location {location}
+gcloud scheduler jobs create http {hourly_metrics_ingestion} --schedule="0 * * * *" --uri={metrics_ingestion_uri} --http-method=GET --time-zone={timezone} --description="Invokes Metrics Ingestion API each hour to populate db" --location {location} --oidc-service-account-email="{sa-name}@{project_id}.iam.gserviceaccount.com" --oidc-token-audience={metrics_ingestion_uri}
 ```
 location: __us-central1__
 *Time Zone: "America/Argentina/Buenos_Aires"*
 
 ### CopilotSeatsIngestion
 ```bash
-gcloud scheduler jobs create http {hourly_seats_ingestion} --schedule="0 * * * *" --uri={seats_ingestion_uri} --http-method=GET --time-zone={timezone} --description="Invokes Seats Ingestion API each hour to populate db" --location {location}
+gcloud scheduler jobs create http {hourly_seats_ingestion} --schedule="0 * * * *" --uri={seats_ingestion_uri} --http-method=GET --time-zone={timezone} --description="Invokes Seats Ingestion API each hour to populate db" --location {location} --oidc-service-account-email="{sa-name}@{project_id}.iam.gserviceaccount.com" --oidc-token-audience={seats_ingestion_uri}
 ```
 location: __us-central1__
 *Time Zone: "America/Argentina/Buenos_Aires"*
