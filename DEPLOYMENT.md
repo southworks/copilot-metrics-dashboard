@@ -1,5 +1,19 @@
 # Deployment Guide
-You must have `gcloud` CLI
+You must have `gcloud` CLI follow the official [Google CLI Install Docs](https://cloud.google.com/sdk/docs/install#linux)
+
+> ![TIP]
+> If you're using linux
+> Once you've downloaded the `.tar.gz` file
+> Ensure it is in your home folder `~/`
+> extract it with `tar -xvf` official docs don't add `-v` flag but it is useful
+> then follow the steps as it
+
+## Login
+```bash
+gcloud auth login
+```
+
+
 ## Create Firestore DB
 1. Create db
 
@@ -29,32 +43,22 @@ printf "s3cr3t" | gcloud secrets create {gh-secret} --data-file=-
 
 ## Create functions
 ### Create env.yaml
+The `env.yaml` file is created with the script but if you need to add teams you can create it and add them as follows:
 ```yaml
-LOG_EXECUTION_ID: "true"
-USE_LOCAL_SETTINGS: "false"
-GITHUB_API_SCOPE: "organization"
-METRICS_HISTORY_FIRESTORE_COLLECTION_NAME: "metrics_history"
-ENABLE_SEATS_INGESTION: "true"
-GITHUB_ENTERPRISE: <enterprise>
-GITHUB_ORGANIZATION: <organization>
-SEATS_HISTORY_FIRESTORE_COLLECTION_NAME: "seats_history"
-PROJECT_ID: <projectId>
-DATABASE_ID: <db_name>
-GITHUB_API_VERSION: "2022-11-28"
 GITHUB_METRICS_TEAMS: <teams>
 ```
 *GITHUB_METRICS_TEAMS: '["team-copilot", "team-copilot-2"]'*
 
 ### CopilotMetricsIngestion
 ```bash
-gcloud functions deploy {metrics_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotMetricsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest"
+gcloud functions deploy {metrics_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotMetricsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest" --set-env-vars="PROJECT_ID={projectId},DATABASE_ID={db_name},GITHUB_ENTERPRISE={ghEnterprise},GITHUB_ORGANIZATION={ghOrganization}"
 ```
 
 region: __us-central1__
 
 ### CopilotSeatsIngestion
 ```bash
-gcloud functions deploy {seats_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotSeatsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest"
+gcloud functions deploy {seats_ingestion_name} --runtime dotnet8 --trigger-http --entry-point Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotSeatsIngestion --region {region} --env-vars-file env.yaml --set-secrets="GITHUB_TOKEN={gh-secret}:latest" --set-env-vars="PROJECT_ID={projectId},DATABASE_ID={db_name},GITHUB_ENTERPRISE={ghEnterprise},GITHUB_ORGANIZATION={ghOrganization}"
 ```
 
 
