@@ -17,7 +17,7 @@ export interface IProps {
 }
 
 export default async function Dashboard(props: IProps) {
-  const allDataPromise = getCopilotMetrics(props.searchParams);
+  const allDataPromise = getCopilotMetrics(props.searchParams, false);
   const seatsPromise = getCopilotSeatsManagement({} as SeatServiceFilter);
   const [allData, seats] = await Promise.all([allDataPromise, seatsPromise]);
 
