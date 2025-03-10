@@ -59,6 +59,7 @@ You will be prompted to provide the following information:
 - Team Names (if you choose to use the new metrics API)
 ```
 
+## GA Metrics API
 > More details here for the [GA Metrics API](https://github.blog/changelog/2024-10-30-github-copilot-metrics-api-ga-release-now-available/)
 
 > Team Names must be a valid JSON array, e.g. ``["team-1", "team-2]``
@@ -78,121 +79,62 @@ azd up --debug
 ```
 
 # Deploy to Google Cloud Platform
+## Pre-requisites
+1. Existing GCP Project with billing linked
+    - If you have the project link the billing (ensure you have enough permission) See [Enable billing for a project](https://cloud.google.com/billing/docs/how-to/modify-project) guide for more info.
+2. You'll need to enable the following API Services in GCP Console (For info on how to enable them see [Enabling an API](https://cloud.google.com/endpoints/docs/openapi/enable-api#enabling_an_api))
+    - Cloud Loggin API
+    - Cloud Monitoring API
+    - Cloud Scheduler API
+    - Cloud Functions API
+    - Artifact Registry API
+    - Secret Manager API
+    - Compute Engine API
+    - Cloud Firestore API
+    - Cloud Run Admin API
+    - Cloud Build API
+    - Identity and Access Management (IAM) API
+3. Create App Engine follow the next guid [Create App Engine Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project)
+> ![IMPORTANT]
+>
+> After you create your App Engine app, you cannot change the region.
 
-The deployment in GCP requires Firestore database, Cloud Run Functions and App Engine services.
+## Google Cloud CLI
+You must have `gcloud` CLI follow the official [Google CLI Install Docs](https://cloud.google.com/sdk/docs/install#linux)
 
-## Configuring Firestore
+> ![TIP]
+>
+> If you're using linux
+> Once you've downloaded the `.tar.gz` file
+> Ensure it is in your home folder `~/`
+> extract it with `tar -xvf` official docs don't add `-v` flag but it is useful
+> then follow the steps as it
 
-1. While in the Google Cloud console, search for Firestore service.
-1. Go to create database.
-1. Create the database and copy the id since it will be used for configuring other services.
-1. In the left panel go to Indexes.
-1. In the Composite tab, click create index.
-1. In the form that will appear, set the following. 
-    1. Collection: 'metrics_history'
-    1. Add field: 'team_data', ascending.
-    1. Add field: 'date', ascending
-    1. Add field: '\__name\_\_' ascending
-    1. Query scope: collection
-1. Click create
+## Complete env
+In [deploy.sh](scripts/deploy.sh) update the variables with your values:
+```bash
+projectId=""
+region=""
+database=""
+ghTokenVaultName=""
+ghToken=""
+ghEnterprise=""
+ghOrganization=""
+funcNamePrefix=""
+saName=""
+dashboardServiceName=""
+ghMetricsTeams='["team-copilot","team-copilot-2"]'
+dashboardBUs='[{"Business unit 1": ["team-copilot"]}, {"Business unit 2": ["team-copilot", "team-copilot-2"]}]'
+```
+*ghMetricsTeam must exists otherwise it will fail during runtime see [GA Metrics API](#ga-metrics-api)*
 
-## Configuring Cloud Run Functions
+## Deploy
+```bash
+gcloud auth login
+./scripts/deploy.sh
+```
 
-Before following the steps, clone this repository.
-Currently there are four C# functions:
-- Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotDataIngestion
-- Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotMetricsIngestion
-- Microsoft.CopilotDashboard.DataIngestion.Functions.CopilotSeatsIngestion
-- Microsoft.CopilotDashboard.DataIngestion.Functions.GetCopilotSeatsByDate
-
-And there will be one Google Cloud Run Function instance per C# function.
-1. While in the Google Cloud console, search for Cloud Run Functions.
-1. Go to create function.
-1. Add a name for the function and make sur the trigger type is HTTPS.
-1. Under runtime variables, add the following:
-    - GITHUB_API_SCOPE: organization
-    - HISTORY_FIRESTORE_COLLECTION_NAME:history
-    - USE_METRICS_API: true
-    - METRICS_HISTORY_FIRESTORE_COLLECTION_NAME: metrics_history
-    - GITHUB_TOKEN: {github_token}*
-    - ENABLE_SEATS_INGESTION: true
-    - GITHUB_ENTERPRISE: {enterprise_name}
-    - GITHUB_ORGANIZATION: {organization_name}
-    - SEATS_HISTORY_FIRESTORE_COLLECTION_NAME: seats_history
-    - PROJECT_ID: {google_project_id} 
-    - DATABASE_ID: {firestore_database_id}
-    - GITHUB_API_VERSION: 2022-11-28
-    - API_KEY: {api_key}*
-    - USE_LOCAL_SETTINGS: false
-    - GITHUB_METRICS_TEAMS: ["{gh-team-name}", "{gh-team-2-name}"]**
-1. Click next to go to the Code section.
-1. Under Runtime selection .NET 8.
-1. Under Entry Point add the name of the function to deploy. It can be copied from the list above.
-1. Under Source code select ZIP upload.
-1. In you local environment, create a zip file with the code of the project DataIngestionGCP
-1. In Destination bucket choose a bucket to store the zip file.
-1. Select the zip file in your local environment.
-1. Click deploy
-
-For the rest of the functions, follow these steps:
-1. Click copy at the top of the function dashboard. This will navigate to the create function wizard with all fields pre-configured with the same values as the previously deployed functio.
-1. Change the name to the one that will be deployed, for example CopilotMetricsIngestion.
-1. Click next in at the bottom of the configuration step.
-1. Under Entry Point change the name of the function to the one that will be deployed. It can be copied from the list above.
-1. Click deploy.
-
-*For the GitHub token and API Key, a secret can be added in the secret manager and referenced in the security and image repo tab. The API key value is arbitrary and can be a GUID for example. The steps to generate a GitHub token can be found [below](#how-to-create-a-github-pat-personal-access-token)
-
-**This setting is optional. Set this if you want to have data separated by teams in the Metrics Dashboard site.
-
-### Configuring schedule jobs
-
-The CopilotDataIngestion, CopilotMetricsIngestion and CopilotSeatsIngestion functions run on a schedule, to configure the schedule job, follow these steps:
-
-1. Go to Google Cloud Console: Open your web browser and navigate to the Google Cloud Console.
-1. Select Your Project: Ensure you have selected the correct Google Cloud project where your Cloud Run function is deployed.
-1. Enable Cloud Scheduler API: If you haven't already, enable the Cloud Scheduler API for your project:
-1. Go to the [Cloud Scheduler API page](https://console.cloud.google.com/apis/library/cloudscheduler.googleapis.com).
-1. Click "Enable".
-1. Navigate to Cloud Scheduler: In the left sidebar, navigate to "Cloud Scheduler" under the "Tools" section.
-
-Create a New Job:
-
-Click on the "Create job" button.
-
-**Configure the Job**:
-- Name: Enter a name for your job.
-- Description: Optionally, enter a description for your job.
-- Frequency: Enter the cron expression for every hour: 0 * * * *.
-- Timezone: Select the appropriate timezone for your schedule.
-
-**Configure the Target**:
-- Target Type: Select "HTTP".
-- URL: Enter the URL of the Cloud Run function. It should look - something like https://<region>-<project-id>.cloudfunctions.net/- <function-name>. It can be copied from the function dashboard.
-- HTTP Method: select GET.
-
-**Add Authentication**:
-
-- Auth Header: Select "Add OIDC token".
-- Service Account: Select the service account that has the necessary permissions to invoke the Cloud Run function.
-
-**Create the Job**:
-Click the "Create" button to save and create your scheduled job.
-
-**Example Configuration**
-- Name: CopilotMetricsIngestion-job
-- Description: Runs every hour to trigger CopilotMetricsIngestion function
-- Frequency: 0 * * * *
-- Timezone: UTC
-- Target Type: HTTP
-- URL: https://<region>-<project-id>.cloudfunctions.net/- <function-name>
-- HTTP Method: GET
-- Auth Header: Add OIDC token
-- Service Account: your-service-account@your-project-id.iam.gserviceaccount.com
-
-## Deploy dashboard to App Engine
-
-To deploy the frontend dashboard, follow [these steps](/src/dashboard/README.md#deploying-the-dashboard-on-google-cloud-platform-app-engine).
+*See [What does deploy.sh do](scripts/README.md) for more details about each step*
 
 # How to create a GitHub PAT (Personal access token)
 1. Go to the following link: https://github.com/settings/personal-access-tokens (Fine-grained tokens)
