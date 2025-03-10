@@ -122,7 +122,9 @@ ghEnterprise=""
 ghOrganization=""
 funcNamePrefix=""
 saName=""
+dashboardServiceName=""
 ghMetricsTeams='["team-copilot","team-copilot-2"]'
+dashboardBUs='[{"Business unit 1": ["team-copilot"]}, {"Business unit 2": ["team-copilot", "team-copilot-2"]}]'
 ```
 *ghMetricsTeam must exists otherwise it will fail during runtime see [GA Metrics API](#ga-metrics-api)*
 
@@ -133,10 +135,6 @@ gcloud auth login
 ```
 
 *See [What does deploy.sh do](scripts/README.md) for more details about each step*
-
-## Deploy dashboard to App Engine
-
-To deploy the frontend dashboard, follow [these steps](/src/dashboard/README.md#deploying-the-dashboard-on-google-cloud-platform-app-engine).
 
 # How to create a GitHub PAT (Personal access token)
 1. Go to the following link: https://github.com/settings/personal-access-tokens (Fine-grained tokens)

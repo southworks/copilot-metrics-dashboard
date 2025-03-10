@@ -62,14 +62,53 @@ gcloud projects add-iam-policy-binding {projectId} --member "serviceAccount:{sa-
 ## Create scheduler
 ### CopilotMetricsIngestion
 ```bash
-gcloud scheduler jobs create http {hourly_metrics_ingestion} --schedule="0 * * * *" --uri={metrics_ingestion_uri} --http-method=GET --time-zone={timezone} --description="Invokes Metrics Ingestion API each hour to populate db" --location {location} --oidc-service-account-email="{sa-name}@{project_id}.iam.gserviceaccount.com" --oidc-token-audience={metrics_ingestion_uri}
+gcloud scheduler jobs create http {hourly_metrics_ingestion} --schedule="0 * * * *" --uri={metrics_ingestion_uri} --http-method=GET --description="Invokes Metrics Ingestion API each hour to populate db" --location {location} --oidc-service-account-email="{sa-name}@{project_id}.iam.gserviceaccount.com" --oidc-token-audience={metrics_ingestion_uri}
 ```
 location: __us-central1__
-*Time Zone: "America/Argentina/Buenos_Aires"*
 
 ### CopilotSeatsIngestion
 ```bash
-gcloud scheduler jobs create http {hourly_seats_ingestion} --schedule="0 * * * *" --uri={seats_ingestion_uri} --http-method=GET --time-zone={timezone} --description="Invokes Seats Ingestion API each hour to populate db" --location {location} --oidc-service-account-email="{sa-name}@{project_id}.iam.gserviceaccount.com" --oidc-token-audience={seats_ingestion_uri}
+gcloud scheduler jobs create http {hourly_seats_ingestion} --schedule="0 * * * *" --uri={seats_ingestion_uri} --http-method=GET --description="Invokes Seats Ingestion API each hour to populate db" --location {location} --oidc-service-account-email="{sa-name}@{project_id}.iam.gserviceaccount.com" --oidc-token-audience={seats_ingestion_uri}
 ```
 location: __us-central1__
-*Time Zone: "America/Argentina/Buenos_Aires"*
+
+## Create frontend service account
+```bash
+dashboardServiceName="dashboard"
+dashboardSa="${dashboardServiceName}-front-sa"
+dashboardSaMember="$dashboardSa@$projectId.iam.gserviceaccount.com"
+
+gcloud iam service-accounts create $dashboardSa --display-name "Geitost frontend service account" --description "SA needed to read db and pull images"
+```
+
+## Binding roles
+```bash
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/artifactregistry.reader"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/artifactregistry.writer"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/artifactregistry.createOnPushRepoAdmin"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/firebase.viewer"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/logging.logWriter"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/storage.admin"
+```
+
+## Deploy front
+Inside `src/dashboard`
+```bash
+cd ../../dashboard
+rm -f app.yaml
+cat app.base.yaml >> app.yaml
+echo "service: $dashboardServiceName" >> app.yaml
+echo "" >> app.yaml
+echo "env_variables:" >> app.yaml
+echo "  NODE_ENV: production" >> app.yaml
+echo "  GITHUB_TOKEN: $ghToken" >> app.yaml
+echo "  GITHUB_ENTERPRISE: $ghEnterprise" >> app.yaml
+echo "  GITHUB_ORGANIZATION: $ghOrganization" >> app.yaml
+echo "  GITHUB_API_VERSION: \"2022-11-28\"" >> app.yaml
+echo "  GITHUB_API_SCOPE: \"organization\"" >> app.yaml
+echo "  FIREBASE_PROJECT_ID: $projectId" >> app.yaml
+echo "  DATABASE_ID: $database" >> app.yaml
+echo "  NEXT_PUBLIC_BUSINESS_UNITS: '$dashboardBUs'" >> app.yaml
+
+gcloud app deploy --service-account="$dashboardSaMember" -q
+```
