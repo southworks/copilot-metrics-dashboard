@@ -24,7 +24,7 @@ printf "$ghToken" | gcloud secrets create $ghTokenVaultName --data-file=-
 
 # Create functions
 cd ../src/backgroundGCP/DataIngestionGCP
-
+rm -f env.yaml
 touch env.yaml
 echo "PROJECT_ID: $projectId" >> env.yaml
 echo "DATABASE_ID: $database" >> env.yaml
