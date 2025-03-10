@@ -79,6 +79,22 @@ azd up --debug
 ```
 
 # Deploy to Google Cloud Platform
+## Pre-requisites
+1. Existing GCP Project with billing linked
+    - If you have the project link the billing (ensure you have enough permission) See [Enable billing for a project](https://cloud.google.com/billing/docs/how-to/modify-project) guide for more info.
+2. You'll need to enable the following API Services in GCP Console (For info on how to enable them see [Enabling an API](https://cloud.google.com/endpoints/docs/openapi/enable-api#enabling_an_api))
+    - Cloud Loggin API
+    - Cloud Monitoring API
+    - Cloud Scheduler API
+    - Cloud Functions API
+    - Artifact Registry API
+    - Secret Manager API
+    - Compute Engine API
+    - Cloud Firestore API
+    - Cloud Run Admin API
+    - Cloud Build API
+    - Identity and Access Management (IAM) API
+
 ## Google Cloud CLI
 You must have `gcloud` CLI follow the official [Google CLI Install Docs](https://cloud.google.com/sdk/docs/install#linux)
 
