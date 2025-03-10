@@ -16,11 +16,11 @@ ghMetricsTeams='["team-copilot","team-copilot-2"]'
 gcloud config set project $projectId
 
 # Create db & indexes
-#gcloud firestore databases create --database=$database --location=$region
-#gcloud firestore indexes composite create --database=$database --collection-group=metrics_history --field-config=field-path="team_data,order=ascending" --field-config=field-path="date,order=ascending"
+gcloud firestore databases create --database=$database --location=$region
+gcloud firestore indexes composite create --database=$database --collection-group=metrics_history --field-config=field-path="team_data,order=ascending" --field-config=field-path="date,order=ascending"
 
 # Create secret
-#printf "$ghToken" | gcloud secrets create $ghTokenVaultName --data-file=-
+printf "$ghToken" | gcloud secrets create $ghTokenVaultName --data-file=-
 
 # Create functions
 cd ../src/backgroundGCP/DataIngestionGCP
