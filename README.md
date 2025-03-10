@@ -94,6 +94,10 @@ azd up --debug
     - Cloud Run Admin API
     - Cloud Build API
     - Identity and Access Management (IAM) API
+3. Create App Engine follow the next guid [Create App Engine Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project)
+> ![IMPORTANT]
+>
+> After you create your App Engine app, you cannot change the region.
 
 ## Google Cloud CLI
 You must have `gcloud` CLI follow the official [Google CLI Install Docs](https://cloud.google.com/sdk/docs/install#linux)
