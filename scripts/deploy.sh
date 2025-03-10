@@ -11,7 +11,9 @@ ghEnterprise=""
 ghOrganization=""
 funcNamePrefix=""
 saName=""
+dashboardServiceName=""
 ghMetricsTeams='["team-copilot","team-copilot-2"]'
+dashboardBUs='[{"Business unit 1": ["team-copilot"]}, {"Business unit 2": ["team-copilot", "team-copilot-2"]}]'
 
 gcloud config set project $projectId
 
@@ -61,3 +63,36 @@ hourlyMetricsName="hourly-$funcMetricsIngestionName"
 hourlySeatsName="hourly-$funcSeatsIngestionName"
 gcloud scheduler jobs create http $hourlyMetricsName --schedule="0 * * * *" --uri=$funcMetricsIngestionURL --http-method=GET --description="Invokes Metrics Ingestion API each hour to populate db" --location $region --oidc-service-account-email="$saName@$projectId.iam.gserviceaccount.com" --oidc-token-audience=$funcMetricsIngestionURL
 gcloud scheduler jobs create http $hourlySeatsName --schedule="0 * * * *" --uri=$funcSeatsIngestionURL --http-method=GET --description="Invokes Metrics Ingestion API each hour to populate db" --location $region --oidc-service-account-email="$saName@$projectId.iam.gserviceaccount.com" --oidc-token-audience=$funcSeatsIngestionURL
+
+# Create frontend SA
+dashboardSa="${dashboardServiceName}-front-sa"
+dashboardSaMember="$dashboardSa@$projectId.iam.gserviceaccount.com"
+
+gcloud iam service-accounts create $dashboardSa --display-name "Geitost frontend service account" --description "SA needed to read db and pull images"
+sleep 5
+
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/artifactregistry.reader"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/artifactregistry.writer"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/artifactregistry.createOnPushRepoAdmin"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/firebase.viewer"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/logging.logWriter"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/storage.admin"
+
+# Deploy frontend service
+cd ../../dashboard
+rm -f app.yaml
+cat app.base.yaml >> app.yaml
+echo "service: $dashboardServiceName" >> app.yaml
+echo "" >> app.yaml
+echo "env_variables:" >> app.yaml
+echo "  NODE_ENV: production" >> app.yaml
+echo "  GITHUB_TOKEN: $ghToken" >> app.yaml
+echo "  GITHUB_ENTERPRISE: $ghEnterprise" >> app.yaml
+echo "  GITHUB_ORGANIZATION: $ghOrganization" >> app.yaml
+echo "  GITHUB_API_VERSION: \"2022-11-28\"" >> app.yaml
+echo "  GITHUB_API_SCOPE: \"organization\"" >> app.yaml
+echo "  FIREBASE_PROJECT_ID: $projectId" >> app.yaml
+echo "  DATABASE_ID: $database" >> app.yaml
+echo "  NEXT_PUBLIC_BUSINESS_UNITS: '$dashboardBUs'" >> app.yaml
+
+gcloud app deploy --service-account="$dashboardSaMember" -q
