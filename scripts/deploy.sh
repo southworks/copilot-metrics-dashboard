@@ -77,6 +77,7 @@ gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dash
 gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/firebase.viewer"
 gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/logging.logWriter"
 gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/storage.admin"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/secretmanager.secretAccessor"
 
 # Deploy frontend service
 cd ../../dashboard
@@ -86,7 +87,7 @@ echo "service: $dashboardServiceName" >> app.yaml
 echo "" >> app.yaml
 echo "env_variables:" >> app.yaml
 echo "  NODE_ENV: production" >> app.yaml
-echo "  GITHUB_TOKEN: $ghToken" >> app.yaml
+echo "  GITHUB_TOKEN: $ghTokenVaultName" >> app.yaml
 echo "  GITHUB_ENTERPRISE: $ghEnterprise" >> app.yaml
 echo "  GITHUB_ORGANIZATION: $ghOrganization" >> app.yaml
 echo "  GITHUB_API_VERSION: \"2022-11-28\"" >> app.yaml
@@ -96,3 +97,4 @@ echo "  DATABASE_ID: $database" >> app.yaml
 echo "  NEXT_PUBLIC_BUSINESS_UNITS: '$dashboardBUs'" >> app.yaml
 
 gcloud app deploy --service-account="$dashboardSaMember" -q
+rm -f app.yaml

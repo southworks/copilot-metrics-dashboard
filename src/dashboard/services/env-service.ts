@@ -1,4 +1,5 @@
 import { ServerActionResponse } from "@/features/common/server-action-response";
+import { getSecret } from "@/lib/getSecret";
 
 interface GitHubConfig {
   organization: string;
@@ -16,7 +17,7 @@ interface FeaturesConfig {
 export const ensureGitHubEnvConfig = async (): Promise<ServerActionResponse<GitHubConfig>> => {
   const organization = process.env.GITHUB_ORGANIZATION;
   const enterprise = process.env.GITHUB_ENTERPRISE;
-  const token = process.env.GITHUB_TOKEN;
+  const token = await getSecret();
   const version = process.env.GITHUB_API_VERSION;
   let scope = process.env.GITHUB_API_SCOPE;
 
