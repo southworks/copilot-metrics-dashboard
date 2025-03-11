@@ -97,3 +97,4 @@ echo "  DATABASE_ID: $database" >> app.yaml
 echo "  NEXT_PUBLIC_BUSINESS_UNITS: '$dashboardBUs'" >> app.yaml
 
 gcloud app deploy --service-account="$dashboardSaMember" -q
+rm -f app.yaml
