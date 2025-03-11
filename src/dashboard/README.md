@@ -2,16 +2,17 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 # Getting Started
 
-First, run the development server:
+Build and run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# install dependencies with
+yarn install
+
+# build site with
+yarn run build
+
+# run with
+yarn run start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -19,6 +20,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+## Connecting to Firestore
+
+In order to allow connections from the dashboard to Firestore locally, follow these steps:
+1. Install the [Google Cloud console](https://cloud.google.com/sdk/docs/downloads-interactive)
+1. In a terminal such as PowerShell, run `gcloud init` and follow the instructions
+1. In the same terminal, run `gcloud auth application-default login`
+
+You must start the dashboard in the same terminal, and after the steps mentioned above it will be allowed to connect to Firestore service within that account. Make sure to login to the same project that the `FIREBASE_PROJECT_ID` setting in the .env file specifies.
 
 # Learn More
 
