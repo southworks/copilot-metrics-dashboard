@@ -100,7 +100,7 @@ azd up --debug
 > After you create your App Engine app, you cannot change the region.
 
 ## Enable IAP for App Engine
-This features makes possible to request for users to do sign-in without code changes
+This feature allows to request users to sign-in without code changes.
 Follow the next guide to enable it [Enabling IAP for App Engine](https://cloud.google.com/iap/docs/enabling-app-engine)
 
 You will also have to configure your application name as follows:
