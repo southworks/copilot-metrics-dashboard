@@ -87,7 +87,7 @@ echo "service: $dashboardServiceName" >> app.yaml
 echo "" >> app.yaml
 echo "env_variables:" >> app.yaml
 echo "  NODE_ENV: production" >> app.yaml
-echo "  GITHUB_TOKEN: $ghToken" >> app.yaml
+echo "  GITHUB_TOKEN: $ghTokenVaultName" >> app.yaml
 echo "  GITHUB_ENTERPRISE: $ghEnterprise" >> app.yaml
 echo "  GITHUB_ORGANIZATION: $ghOrganization" >> app.yaml
 echo "  GITHUB_API_VERSION: \"2022-11-28\"" >> app.yaml
