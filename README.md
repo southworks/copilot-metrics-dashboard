@@ -99,6 +99,20 @@ azd up --debug
 >
 > After you create your App Engine app, you cannot change the region.
 
+## Enable IAP for App Engine
+This feature allows to request users to sign-in without code changes.
+Follow the next guide to enable it [Enabling IAP for App Engine](https://cloud.google.com/iap/docs/enabling-app-engine)
+
+You will also have to configure your application name as follows:
+
+### Go to OAuth consent screen
+![OAuth Consent Screen](/docs/oauth-consent-screen.png)
+
+### Setup your application name
+![Setup your app name](/docs/branding-app-name.png)
+
+Then hit save and you're done!
+
 ## Google Cloud CLI
 You must have `gcloud` CLI follow the official [Google CLI Install Docs](https://cloud.google.com/sdk/docs/install#linux)
 
