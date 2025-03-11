@@ -77,6 +77,7 @@ gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dash
 gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/firebase.viewer"
 gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/logging.logWriter"
 gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/storage.admin"
+gcloud projects add-iam-policy-binding $projectId --member="serviceAccount:$dashboardSaMember" --role="roles/secretmanager.secretAccessor"
 
 # Deploy frontend service
 cd ../../dashboard
